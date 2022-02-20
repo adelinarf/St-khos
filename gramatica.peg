@@ -1,0 +1,34 @@
+start := recursive $
+recursive := TkNumber | TkFalse | TkTrue | TkNum | TkId | TkAssign | TkColon | TkSemicolon | TkComma | TkQuote | TkNot | TkOpenPar | TkClosePar | TkOpenBracket | TkCloseBracket | TkOpenBrace | TkCloseBrace | TkOr | TkAnd | TkPower | TkDiv | TkPlus | TkMult | TkMod | TkMinus | TkLE | TkLT | TkGE | TkGT | TkEQ | TkNE 
+TkNumber := space* value = '[0-9]+' next=recursive*
+TkNum := space* value = 'num' next=recursive*
+TkFalse := space* value = 'false' next=recursive*
+TkTrue := space* value = 'true' next=recursive*
+TkId := space* value = '[a-zA-Z]+' next=recursive*
+TkPlus := space* value = '\+' next=recursive*
+TkMult := space* value = '\*' next=recursive*
+TkOpenPar := space* value = '\(' next=recursive*
+TkClosePar := space* value = '\)' next=recursive*
+TkOpenBracket := space* value = '\[' next=recursive*
+TkCloseBracket := space* value = '\]' next=recursive*
+TkOpenBrace := space* value = '\{' next=recursive*
+TkCloseBrace := space* value = '\}' next=recursive*
+TkNot := space* value = '\!' next=recursive*
+TkPower := space* value = '\^' next=recursive*
+TkDiv := space* value = '\/' next=recursive*
+TkMod := space* value = '\%' next=recursive*
+TkMinus := space* value = '\-' next=recursive*
+TkLT := space* value = '\<' next=recursive*
+TkLE := space* value = '\<=' next=recursive*
+TkGE := space* value = '\>=' next=recursive*
+TkGT := space* value = '\>' next=recursive*
+TkEQ := space* value = '\=' next=recursive*
+TkNE := space* value = '\<>' next=recursive*
+TkAnd := space* value = '\&\&' next=recursive*
+TkOr := space* value = '\|\|' next=recursive*
+TkQuote := space* value = '\'' next=recursive*
+TkComma := space* value = '\,' next=recursive*
+TkSemicolon := space* value = '\;' next=recursive*
+TkColon := space* value = '\:' next=recursive*
+TkAssign := space* value = '\:=' next=recursive*
+space := ' ' | '\\t' | '\n' | '\r\n' | '[" "]+'
