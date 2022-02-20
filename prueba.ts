@@ -11,6 +11,8 @@ function lextest(instruccion : String,readline){
 	if (token.length < 1){
 		var parseo = parse(instruccion);
 		var pos = parseo.errs[0].pos.overallPos;
+		console.log(parseo.errs[0].pos);
+		console.log(pos);
 		console.log("ERROR: Caracter invalido ('" + instruccion.charAt(pos) + "') en la entrada");
 	}
 	else{
@@ -36,10 +38,10 @@ function procesarArchivo(instruccion : String,linea,nombre){
 		var instruccionMod = instruccion.replace(re,"");
 		var token = guardarTokens(instruccionMod);
 		if (token.length < 1){
-			var parseo = parse(instruccion);
+			var parseo = parse(instruccionMod);
 			var pos = parseo.errs[0].pos.overallPos;
-			console.log("ERROR: Caracter invalido ('" + instruccion.charAt(pos) + "') en la entrada");
-			errores.push([nombre, linea.toString(),"ERROR: Caracter invalido en la entrada"]);
+			console.log("ERROR: Caracter invalido ('" + instruccionMod.charAt(pos) + "') en la entrada");
+			errores.push([nombre, linea.toString(),"ERROR: Caracter invalido ('" + instruccionMod.charAt(pos) + "') en la entrada"]);
 		}
 		else{
 			var listaTokens = showTokens(token);
