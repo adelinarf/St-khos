@@ -29,16 +29,16 @@ Se puede utilizar la funcion .load para cargar un archivo que se leerá línea p
 Hay un archivo de ejemplo para lectura utilizando la función .load llamado ej.txt.
 Las entradas en el REPL pueden ser de la siguiente manera
 
-<Stokhos> .lex (expresion)
+  <Stokhos> .lex (expresion)
 
-<Stokhos> .load nombrearchivo.txt
+  <Stokhos> .load nombrearchivo.txt
 
-<Stokhos> .failed
+  <Stokhos> .failed
 
-<Stokhos> .reset
+  <Stokhos> .reset
 
 Para salir del REPL se coloca únicamente un punto.
 
-<Stokhos> .
+  <Stokhos> .
 
-$
+  $
