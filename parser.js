@@ -291,7 +291,7 @@ class Parser {
             let $$res = null;
             if (true
                 && this.loop(() => this.matchspace($$dpth + 1, $$cr), true) !== null
-                && ($scope$value = this.regexAccept(String.raw `(?:[a-zA-Z_][a-zA-Z0-9_]+)`, $$dpth + 1, $$cr)) !== null
+                && ($scope$value = this.regexAccept(String.raw `(?:\b([a-zA-Z][^\s]*))`, $$dpth + 1, $$cr)) !== null
                 && ($scope$next = this.loop(() => this.matchrecursive($$dpth + 1, $$cr), true)) !== null) {
                 $$res = { kind: ASTKinds.TkId, value: $scope$value, next: $scope$next };
             }

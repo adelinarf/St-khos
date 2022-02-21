@@ -6,7 +6,7 @@
 * TkNum := space* value = 'num' next=recursive*
 * TkFalse := space* value = 'false' next=recursive*
 * TkTrue := space* value = 'true' next=recursive*
-* TkId := space* value = '[a-zA-Z_][a-zA-Z0-9_]+' next=recursive*
+* TkId := space* value = '\b([a-zA-Z][^\s]*)' next=recursive*
 * TkPlus := space* value = '\+' next=recursive*
 * TkMult := space* value = '\*' next=recursive*
 * TkOpenPar := space* value = '\(' next=recursive*
@@ -539,7 +539,7 @@ export class Parser {
                 let $$res: Nullable<TkId> = null;
                 if (true
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
-                    && ($scope$value = this.regexAccept(String.raw`(?:[a-zA-Z_][a-zA-Z0-9_]+)`, $$dpth + 1, $$cr)) !== null
+                    && ($scope$value = this.regexAccept(String.raw`(?:\b([a-zA-Z][^\s]*))`, $$dpth + 1, $$cr)) !== null
                     && ($scope$next = this.loop<recursive>(() => this.matchrecursive($$dpth + 1, $$cr), true)) !== null
                 ) {
                     $$res = {kind: ASTKinds.TkId, value: $scope$value, next: $scope$next};
