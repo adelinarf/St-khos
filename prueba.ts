@@ -11,8 +11,6 @@ function lextest(instruccion : String,readline){
 	if (token.length < 1){
 		var parseo = parse(instruccion);
 		var pos = parseo.errs[0].pos.overallPos;
-		console.log(parseo.errs[0].pos);
-		console.log(pos);
 		console.log("ERROR: Caracter invalido ('" + instruccion.charAt(pos) + "') en la entrada");
 	}
 	else{

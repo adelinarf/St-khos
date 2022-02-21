@@ -2,11 +2,11 @@
 * INPUT GRAMMAR:
 * start := start = recursive $
 * recursive := TkNumber | TkFalse | TkTrue | TkNum | TkId | TkAssign | TkColon | TkSemicolon | TkComma | TkQuote | TkNot | TkOpenPar | TkClosePar | TkOpenBracket | TkCloseBracket | TkOpenBrace | TkCloseBrace | TkOr | TkAnd | TkPower | TkDiv | TkPlus | TkMult | TkMod | TkMinus | TkLE | TkLT | TkGE | TkGT | TkEQ | TkNE 
-* TkNumber := space* value = '[0-9]+' next=recursive*
+* TkNumber := space* value = '-?[0-9]+(?:\.[0-9]+)?' next=recursive*
 * TkNum := space* value = 'num' next=recursive*
 * TkFalse := space* value = 'false' next=recursive*
 * TkTrue := space* value = 'true' next=recursive*
-* TkId := space* value = '[a-zA-Z]+' next=recursive*
+* TkId := space* value = '[a-zA-Z_][a-zA-Z0-9_]+' next=recursive*
 * TkPlus := space* value = '\+' next=recursive*
 * TkMult := space* value = '\*' next=recursive*
 * TkOpenPar := space* value = '\(' next=recursive*
@@ -475,7 +475,7 @@ export class Parser {
                 let $$res: Nullable<TkNumber> = null;
                 if (true
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
-                    && ($scope$value = this.regexAccept(String.raw`(?:[0-9]+)`, $$dpth + 1, $$cr)) !== null
+                    && ($scope$value = this.regexAccept(String.raw`(?:-?[0-9]+(?:\.[0-9]+)?)`, $$dpth + 1, $$cr)) !== null
                     && ($scope$next = this.loop<recursive>(() => this.matchrecursive($$dpth + 1, $$cr), true)) !== null
                 ) {
                     $$res = {kind: ASTKinds.TkNumber, value: $scope$value, next: $scope$next};
@@ -539,7 +539,7 @@ export class Parser {
                 let $$res: Nullable<TkId> = null;
                 if (true
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
-                    && ($scope$value = this.regexAccept(String.raw`(?:[a-zA-Z]+)`, $$dpth + 1, $$cr)) !== null
+                    && ($scope$value = this.regexAccept(String.raw`(?:[a-zA-Z_][a-zA-Z0-9_]+)`, $$dpth + 1, $$cr)) !== null
                     && ($scope$next = this.loop<recursive>(() => this.matchrecursive($$dpth + 1, $$cr), true)) !== null
                 ) {
                     $$res = {kind: ASTKinds.TkId, value: $scope$value, next: $scope$next};
