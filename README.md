@@ -30,15 +30,11 @@ Hay un archivo de ejemplo para lectura utilizando la función .load llamado ej.t
 Las entradas en el REPL pueden ser de la siguiente manera
 
   <Stokhos> .lex (expresion)
-
   <Stokhos> .load nombrearchivo.txt
-
   <Stokhos> .failed
-
   <Stokhos> .reset
 
 Para salir del REPL se coloca únicamente un punto.
 
   <Stokhos> .
-
   $
