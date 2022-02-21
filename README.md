@@ -16,9 +16,9 @@ tspeg gramatica.peg parser.ts
 
 tsc -t ES2015 -m commonjs parser.ts
 
-tsc prueba.ts
+tsc main.ts
 
-node prueba.js
+node main.js
 
 Si no se han realizado cambios en el archivo de gramatica.peg se puede omitir el segundo comando, ya que, el archivo parser.ts se encuentra actualizado.
 
