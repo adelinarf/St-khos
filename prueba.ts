@@ -107,11 +107,8 @@ function REPLaux(readline){
 		if (entrada.search(re3) != -1){
 			eliminarErrores(readline);
 		}
-		else{
-			if (entrada != "." && entrada.search(re) == -1 && entrada.search(re1) == -1 && entrada.search(re2) == -1 && entrada.search(re3) == -1){
-				console.log("ERROR: Interpretacion no implementada");
+		else{	
 			  REPLaux(readline);
-			}
 		}
     });
 }
