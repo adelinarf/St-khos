@@ -43,7 +43,7 @@ function procesarArchivo(instruccion : String,linea,nombre){
 		}
 		else{
 			var listaTokens = showTokens(token);
-			var imprimir = "OK: <" + instruccion + "> ==> " + " [ " + listaTokens + " ] "
+			var imprimir = "OK: lex(" + instruccion + ") ==> " + " [ " + listaTokens + " ] "
 			var sinEspacios = instruccion.replace(" ","");
 			console.log(imprimir);
 		}
