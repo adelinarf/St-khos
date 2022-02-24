@@ -14,7 +14,7 @@ Se deben ejecutar los siguientes comandos:
 
 tspeg gramatica.peg parser.ts
 
-tsc -t ES2015 -m commonjs parser.ts
+tsc -t ES2021 -m commonjs parser.ts
 
 tsc main.ts
 
