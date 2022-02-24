@@ -10,7 +10,7 @@ Se puede instalar Node.js por medio del sitio web:  https://nodejs.org/en/
 Junto a Node.js se realiza la instalación de npm, desde donde se puede instalar Typescript en caso de ser necesario con el comando: npm install -g typescript
 
 # ¿Cómo realizar la corrida?
-Se deben ejecutar los siguientes comandos:
+En el branch Leguaje-Stokhos, se deben ejecutar los siguientes comandos:
 
 tspeg gramatica.peg parser.ts
 
