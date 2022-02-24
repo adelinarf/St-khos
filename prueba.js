@@ -13,7 +13,7 @@ function lextest(instruccion, readline) {
     }
     else {
         var listaTokens = showTokens(token);
-        var imprimir = "OK: <" + instruccion + "> ==> " + " [ " + listaTokens + " ] ";
+        var imprimir = "OK: lex('" + instruccion + "') ==> " + " [ " + listaTokens + " ] ";
         var sinEspacios = instruccion.replace(" ", "");
         console.log(imprimir);
     }
@@ -39,7 +39,7 @@ function procesarArchivo(instruccion, linea, nombre) {
         }
         else {
             var listaTokens = showTokens(token);
-            var imprimir = "OK: <" + instruccion + "> ==> " + " [ " + listaTokens + " ] ";
+            var imprimir = "OK: lex('" + instruccion + "') ==> " + " [ " + listaTokens + " ] ";
             var sinEspacios = instruccion.replace(" ", "");
             console.log(imprimir);
         }
@@ -99,10 +99,7 @@ function REPLaux(readline) {
             eliminarErrores(readline);
         }
         else {
-            if (entrada != "." && entrada.search(re) == -1 && entrada.search(re1) == -1 && entrada.search(re2) == -1 && entrada.search(re3) == -1) {
-                console.log("ERROR: Interpretacion no implementada");
-                REPLaux(readline);
-            }
+            REPLaux(readline);
         }
     });
 }

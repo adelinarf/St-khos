@@ -35,8 +35,10 @@ var ASTKinds;
     ASTKinds["recursive_29"] = "recursive_29";
     ASTKinds["recursive_30"] = "recursive_30";
     ASTKinds["recursive_31"] = "recursive_31";
+    ASTKinds["recursive_32"] = "recursive_32";
     ASTKinds["TkNumber"] = "TkNumber";
     ASTKinds["TkNum"] = "TkNum";
+    ASTKinds["TkBool"] = "TkBool";
     ASTKinds["TkFalse"] = "TkFalse";
     ASTKinds["TkTrue"] = "TkTrue";
     ASTKinds["TkId"] = "TkId";
@@ -133,6 +135,7 @@ class Parser {
             () => this.matchrecursive_29($$dpth + 1, $$cr),
             () => this.matchrecursive_30($$dpth + 1, $$cr),
             () => this.matchrecursive_31($$dpth + 1, $$cr),
+            () => this.matchrecursive_32($$dpth + 1, $$cr),
         ]);
     }
     matchrecursive_1($$dpth, $$cr) {
@@ -148,84 +151,87 @@ class Parser {
         return this.matchTkNum($$dpth + 1, $$cr);
     }
     matchrecursive_5($$dpth, $$cr) {
-        return this.matchTkId($$dpth + 1, $$cr);
+        return this.matchTkBool($$dpth + 1, $$cr);
     }
     matchrecursive_6($$dpth, $$cr) {
-        return this.matchTkAssign($$dpth + 1, $$cr);
+        return this.matchTkId($$dpth + 1, $$cr);
     }
     matchrecursive_7($$dpth, $$cr) {
-        return this.matchTkColon($$dpth + 1, $$cr);
+        return this.matchTkAssign($$dpth + 1, $$cr);
     }
     matchrecursive_8($$dpth, $$cr) {
-        return this.matchTkSemicolon($$dpth + 1, $$cr);
+        return this.matchTkColon($$dpth + 1, $$cr);
     }
     matchrecursive_9($$dpth, $$cr) {
-        return this.matchTkComma($$dpth + 1, $$cr);
+        return this.matchTkSemicolon($$dpth + 1, $$cr);
     }
     matchrecursive_10($$dpth, $$cr) {
-        return this.matchTkQuote($$dpth + 1, $$cr);
+        return this.matchTkComma($$dpth + 1, $$cr);
     }
     matchrecursive_11($$dpth, $$cr) {
-        return this.matchTkNot($$dpth + 1, $$cr);
+        return this.matchTkQuote($$dpth + 1, $$cr);
     }
     matchrecursive_12($$dpth, $$cr) {
-        return this.matchTkOpenPar($$dpth + 1, $$cr);
+        return this.matchTkNot($$dpth + 1, $$cr);
     }
     matchrecursive_13($$dpth, $$cr) {
-        return this.matchTkClosePar($$dpth + 1, $$cr);
+        return this.matchTkOpenPar($$dpth + 1, $$cr);
     }
     matchrecursive_14($$dpth, $$cr) {
-        return this.matchTkOpenBracket($$dpth + 1, $$cr);
+        return this.matchTkClosePar($$dpth + 1, $$cr);
     }
     matchrecursive_15($$dpth, $$cr) {
-        return this.matchTkCloseBracket($$dpth + 1, $$cr);
+        return this.matchTkOpenBracket($$dpth + 1, $$cr);
     }
     matchrecursive_16($$dpth, $$cr) {
-        return this.matchTkOpenBrace($$dpth + 1, $$cr);
+        return this.matchTkCloseBracket($$dpth + 1, $$cr);
     }
     matchrecursive_17($$dpth, $$cr) {
-        return this.matchTkCloseBrace($$dpth + 1, $$cr);
+        return this.matchTkOpenBrace($$dpth + 1, $$cr);
     }
     matchrecursive_18($$dpth, $$cr) {
-        return this.matchTkOr($$dpth + 1, $$cr);
+        return this.matchTkCloseBrace($$dpth + 1, $$cr);
     }
     matchrecursive_19($$dpth, $$cr) {
-        return this.matchTkAnd($$dpth + 1, $$cr);
+        return this.matchTkOr($$dpth + 1, $$cr);
     }
     matchrecursive_20($$dpth, $$cr) {
-        return this.matchTkPower($$dpth + 1, $$cr);
+        return this.matchTkAnd($$dpth + 1, $$cr);
     }
     matchrecursive_21($$dpth, $$cr) {
-        return this.matchTkDiv($$dpth + 1, $$cr);
+        return this.matchTkPower($$dpth + 1, $$cr);
     }
     matchrecursive_22($$dpth, $$cr) {
-        return this.matchTkPlus($$dpth + 1, $$cr);
+        return this.matchTkDiv($$dpth + 1, $$cr);
     }
     matchrecursive_23($$dpth, $$cr) {
-        return this.matchTkMult($$dpth + 1, $$cr);
+        return this.matchTkPlus($$dpth + 1, $$cr);
     }
     matchrecursive_24($$dpth, $$cr) {
-        return this.matchTkMod($$dpth + 1, $$cr);
+        return this.matchTkMult($$dpth + 1, $$cr);
     }
     matchrecursive_25($$dpth, $$cr) {
-        return this.matchTkMinus($$dpth + 1, $$cr);
+        return this.matchTkMod($$dpth + 1, $$cr);
     }
     matchrecursive_26($$dpth, $$cr) {
-        return this.matchTkLE($$dpth + 1, $$cr);
+        return this.matchTkMinus($$dpth + 1, $$cr);
     }
     matchrecursive_27($$dpth, $$cr) {
-        return this.matchTkLT($$dpth + 1, $$cr);
+        return this.matchTkLE($$dpth + 1, $$cr);
     }
     matchrecursive_28($$dpth, $$cr) {
-        return this.matchTkGE($$dpth + 1, $$cr);
+        return this.matchTkLT($$dpth + 1, $$cr);
     }
     matchrecursive_29($$dpth, $$cr) {
-        return this.matchTkGT($$dpth + 1, $$cr);
+        return this.matchTkGE($$dpth + 1, $$cr);
     }
     matchrecursive_30($$dpth, $$cr) {
-        return this.matchTkEQ($$dpth + 1, $$cr);
+        return this.matchTkGT($$dpth + 1, $$cr);
     }
     matchrecursive_31($$dpth, $$cr) {
+        return this.matchTkEQ($$dpth + 1, $$cr);
+    }
+    matchrecursive_32($$dpth, $$cr) {
         return this.matchTkNE($$dpth + 1, $$cr);
     }
     matchTkNumber($$dpth, $$cr) {
@@ -252,6 +258,20 @@ class Parser {
                 && ($scope$value = this.regexAccept(String.raw `(?:num)`, $$dpth + 1, $$cr)) !== null
                 && ($scope$next = this.loop(() => this.matchrecursive($$dpth + 1, $$cr), true)) !== null) {
                 $$res = { kind: ASTKinds.TkNum, value: $scope$value, next: $scope$next };
+            }
+            return $$res;
+        });
+    }
+    matchTkBool($$dpth, $$cr) {
+        return this.run($$dpth, () => {
+            let $scope$value;
+            let $scope$next;
+            let $$res = null;
+            if (true
+                && this.loop(() => this.matchspace($$dpth + 1, $$cr), true) !== null
+                && ($scope$value = this.regexAccept(String.raw `(?:bool)`, $$dpth + 1, $$cr)) !== null
+                && ($scope$next = this.loop(() => this.matchrecursive($$dpth + 1, $$cr), true)) !== null) {
+                $$res = { kind: ASTKinds.TkBool, value: $scope$value, next: $scope$next };
             }
             return $$res;
         });
@@ -291,7 +311,7 @@ class Parser {
             let $$res = null;
             if (true
                 && this.loop(() => this.matchspace($$dpth + 1, $$cr), true) !== null
-                && ($scope$value = this.regexAccept(String.raw `(?:\b([a-zA-Z][^\s]*))`, $$dpth + 1, $$cr)) !== null
+                && ($scope$value = this.regexAccept(String.raw `(?:\b([a-zA-Z_][^\s\W]*))`, $$dpth + 1, $$cr)) !== null
                 && ($scope$next = this.loop(() => this.matchrecursive($$dpth + 1, $$cr), true)) !== null) {
                 $$res = { kind: ASTKinds.TkId, value: $scope$value, next: $scope$next };
             }
