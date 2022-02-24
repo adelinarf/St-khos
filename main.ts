@@ -12,9 +12,9 @@ function lextest(instruccion : String,readline){
 	}
 	else{
 		var listaTokens = showTokens(token);
-	  var imprimir = "OK: <" + instruccion + "> ==> " + " [ " + listaTokens + " ] "
-	  var sinEspacios = instruccion.replace(" ","");
-	  console.log(imprimir);
+	    var imprimir = 'OK: lex("' + instruccion + '") ==> ' + '[' + listaTokens + ']';
+	    var sinEspacios = instruccion.replace(" ","");
+	    console.log(imprimir);
 	}
 	REPLaux(readline);
 }
@@ -28,7 +28,7 @@ function REPL(){
 }
 
 function procesarArchivo(instruccion : String,linea,nombre){
-	var re = /.lex/gi;
+	var re = /.lex /gi;
 	if (instruccion.search(re) != -1){
 		var instruccionMod = instruccion.replace(re,"");
 		var token = guardarTokens(instruccionMod);
@@ -40,7 +40,7 @@ function procesarArchivo(instruccion : String,linea,nombre){
 		}
 		else{
 			var listaTokens = showTokens(token);
-			var imprimir = "OK: <" + instruccion + "> ==> " + " [ " + listaTokens + " ] "
+			var imprimir = 'OK: lex("' + instruccion + '") ==> ' + '[' + listaTokens + ']';
 			var sinEspacios = instruccion.replace(" ","");
 			console.log(imprimir);
 		}
@@ -81,10 +81,13 @@ function eliminarErrores(readline){
 
 function REPLaux(readline){
 	readline.question('<Stokhos> ', entrada => {
-		var re = /.lex/gi;
+		var re = /.lex /gi;
 		var re1 = /.load/gi;
 		var re2 = /.failed/gi;
 		var re3 = /.reset/gi;
+		if (entrada == " " || entrada == ""){
+			REPLaux(readline);
+		}
 		if (entrada == "."){
 			console.log("&")
 			readline.input.destroy();
@@ -105,7 +108,7 @@ function REPLaux(readline){
 			eliminarErrores(readline);
 		}
 		else{
-			if (entrada != "." && entrada.search(re) == -1 && entrada.search(re1) == -1 && entrada.search(re2) == -1 && entrada.search(re3) == -1){
+			if (entrada != "." && entrada != "" && entrada != " " && entrada.search(re) == -1 && entrada.search(re1) == -1 && entrada.search(re2) == -1 && entrada.search(re3) == -1){
 				console.log("ERROR: Interpretacion no implementada");
 			  REPLaux(readline);
 			}
@@ -119,7 +122,7 @@ function showTokens(array : Array<string>) : Array<string>{
 	for (var i = 0; i < array.length-1; i++) {
 		if (i%2==0){
 			if (array[i] == "TkNumber" || array[i] == "TkId"){
-				arreglo.push(array[i] + "[" + array[i+1] + "]");
+				arreglo.push(array[i] + "(" + array[i+1] + ")");
 			}
 			else{
 				arreglo.push(array[i]);

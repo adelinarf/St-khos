@@ -1,10 +1,11 @@
 start := start = recursive $
-recursive := TkNumber | TkFalse | TkTrue | TkNum | TkId | TkAssign | TkColon | TkSemicolon | TkComma | TkQuote | TkNot | TkOpenPar | TkClosePar | TkOpenBracket | TkCloseBracket | TkOpenBrace | TkCloseBrace | TkOr | TkAnd | TkPower | TkDiv | TkPlus | TkMult | TkMod | TkMinus | TkLE | TkLT | TkGE | TkGT | TkEQ | TkNE 
+recursive := TkNumber | TkFalse | TkTrue | TkNum | TkBool | TkId | TkAssign | TkColon | TkSemicolon | TkComma | TkQuote | TkNot | TkOpenPar | TkClosePar | TkOpenBracket | TkCloseBracket | TkOpenBrace | TkCloseBrace | TkOr | TkAnd | TkPower | TkDiv | TkPlus | TkMult | TkMod | TkMinus | TkLE | TkLT | TkGE | TkGT | TkEQ | TkNE 
 TkNumber := space* value = '-?[0-9]+(?:\.[0-9]+)?' next=recursive*
 TkNum := space* value = 'num' next=recursive*
+TkBool := space* value = 'bool' next=recursive*
 TkFalse := space* value = 'false' next=recursive*
 TkTrue := space* value = 'true' next=recursive*
-TkId := space* value = '\b([a-zA-Z][^\s]*)' next=recursive*
+TkId := space* value = '\b([a-zA-Z_][^\s\W]*)' next=recursive*
 TkPlus := space* value = '\+' next=recursive*
 TkMult := space* value = '\*' next=recursive*
 TkOpenPar := space* value = '\(' next=recursive*
