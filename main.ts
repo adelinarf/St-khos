@@ -122,7 +122,7 @@ function showTokens(array : Array<string>) : Array<string>{
 	for (var i = 0; i < array.length-1; i++) {
 		if (i%2==0){
 			if (array[i] == "TkNumber" || array[i] == "TkId"){
-				arreglo.push(array[i] + "(" + array[i+1] + ")");
+				arreglo.push(" " + array[i] + "(" + array[i+1] + ")");
 			}
 			else{
 				arreglo.push(array[i]);
