@@ -18,6 +18,7 @@ export class REPL {
     var re1 = /.load/gi;
     var re2 = /.failed/gi;
     var re3 = /.reset/gi;
+    var re4 = /.ast/gi;
     if (entrada == " " || entrada == ""){
       this.newLine();
     }
@@ -49,17 +50,26 @@ export class REPL {
     if (entrada.search(re3) == 0){
       this.eliminarErrores();
     }
+    if (entrada.search(re4) == 0) {
+      var instruccion = entrada.replace(re4,"");
+      var retorna2 : string = this.VM_.testParser(instruccion,readline);
+      if (retorna2 == "newLine") {
+        this.newLine();
+      }
+    }
     else{
       var a = entrada.search(re);
       var b = entrada.search(re1);
       var c = entrada.search(re2);
       var d = entrada.search(re3);
-      if (entrada != "." && entrada != "" && entrada != " " && a != 0 && b != 0 && c != 0 && d != 0){
-        if (a > 0 || b > 0 || c > 0 || d > 0){
+      var e = entrada.search(re4);
+      if (entrada != "." && entrada != "" && entrada != " " && a != 0 && b != 0 && c != 0 && d != 0 && e != 0){
+        if (a > 0 || b > 0 || c > 0 || d > 0 || e > 0){
           this.printInvalid(a,entrada); 
           this.printInvalid(b,entrada);
           this.printInvalid(c,entrada);
           this.printInvalid(d,entrada);
+          this.printInvalid(e,entrada);
         }
         else{
           console.log("ERROR: Interpretacion no implementada");

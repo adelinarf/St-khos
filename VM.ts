@@ -32,6 +32,21 @@ export class VM {
 	}
 	return "noNewLine";
   }
+
+  testParser(instruccion: string, readline) : string {
+	var frase1 = instruccion+"=parse=>[[AST]]"
+	var retornar = this.ast2str(frase1,readline);
+	return retornar
+  }
+
+  ast2str(frase1: string, readline) : string{
+	var frase2 = "=ast2str=>"
+	var redundante1 = "("
+	var redundante2 = ")"
+	var imprimir =  frase1+frase2+redundante1
+	console.log(imprimir);
+	return "newLine");
+ }
   leerArchivo(name,call) : [string,Array<Array<string>>] {
 	const fs = require('fs');
 
@@ -103,5 +118,7 @@ export class VM {
     	   siguiente = siguiente.next[0];
     }
   }
+
+
 
 }
