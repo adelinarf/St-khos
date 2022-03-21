@@ -1,4 +1,0 @@
-.lex num x:= 9
-num j:=10
-x+j=9
-num c = x%2
