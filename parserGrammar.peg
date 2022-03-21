@@ -1,0 +1,55 @@
+start:= start = grammar TkSemicolon $
+grammar := declaration|assign|array|exp
+TkSemicolon := value = 'TkSemicolon '
+TkNumber := value = 'TkNumber\([0-9]+\) '
+TkId := value = 'TkId\(\b([a-zA-Z_][^\s\W]*)\) '
+TkAssign := value = 'TkAssign '
+TkOpenPar := value = 'TkOpenPar '
+TkClosePar := value = 'TkClosePar '
+TkOpenBracket := value = 'TkOpenBracket '
+TkCloseBracket := value = 'TkCloseBracket '
+TkOpenBrace := value = 'TkOpenBrace '
+TkCloseBrace := value = 'TkCloseBrace '
+TkPower := value = 'TkPower '
+TkPlus := value = 'TkPlus '
+TkMinus := value = 'TkMinus '
+TkMult := value = 'TkMult '
+TkDiv := value = 'TkDiv '
+TkAnd := value = 'TkAnd '
+TkOr := value = 'TkOr '
+TkNot := value = 'TkNot '
+TkMod := value = 'TkMod '
+TkLT := value = 'TkLT '
+TkLE := value = 'TkLE '
+TkGE := value = 'TkGE '
+TkGT := value = 'TkGT '
+TkEQ := value = 'TkEQ '
+TkNE := value = 'TkNE '
+TkComma := value = 'TkComma '
+TkNum := value = 'TkNum '
+TkBool := value = 'TkBool '
+TkQuote := value = 'TkQuote '
+TkFalse := value = 'TkFalse '
+TkTrue := value = 'TkTrue '
+TkBoolean := TkFalse | TkTrue
+Type := TkNum | TkBool
+lambda := value = ' '
+
+declaration := type=Type id=TkId symbol=TkAssign e=exp
+assign := id=TkId symbol=TkAssign e=exp 
+array := p1=TkOpenBracket type=Type p2=TkCloseBracket id=TkId symbol=TkAssign p3=TkOpenBracket e=termino p4=TkCloseBracket
+
+unary := TkPlus | TkMinus | TkNot 
+terms := TkNumber | TkBoolean | TkId | lambda
+
+exp := e=e1
+
+e1 := e=e2 a={op={TkAnd | TkOr} next=e2}*
+e2 := e=e3 a={op={TkEQ | TkNE} next=e3}*
+e3 := e=e4 a={op={TkLT | TkLE | TkGE | TkGT} next=e4}*
+e4 := e=e5 a={op={TkPlus | TkMinus} next=e5}*
+e5 := e=e6 a={op={TkMult | TkDiv | TkMod} next=e6}*
+e6 := uop=unary* e=e7 
+e7 := e=e8 a={op={TkPower} next=e8}*
+e8 := TkOpenPar value=exp TkClosePar | TkOpenBracket value=termino TkCloseBracket | TkOpenBrace value=exp TkCloseBrace | TkQuote value=exp TkQuote | terms
+termino := e=exp b={TkComma e=exp}*
