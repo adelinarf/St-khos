@@ -1,0 +1,6 @@
+tspeg gramatica.peg parser.ts
+
+tsc -t ES2015 -m commonjs parser.ts
+
+tsc main.ts
+
