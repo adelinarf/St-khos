@@ -1,5 +1,8 @@
 import {VM} from "./VM";
 
+/*La clase REPL implementa un REPL para el lenguaje Stokhos y tiene como entrada al inicializarse una maquina virtual que manejara
+el lenguaje y realiza todas las operaciones relacionadas con el lenguaje. Esta clase contiene un arreglo global que sera utilizado
+para guardar los errores de la lectura de archivos con la funcion .load de Stokhos.*/
 export class REPL {
   errores : Array<Array<string>>;
   readline = require('readline').createInterface({
@@ -11,7 +14,9 @@ export class REPL {
     this.errores = [];
     this.VM_ = VM_;
   }
- 
+  /*La funcion newLine es la funcion principal del REPL, en ella se realizan las verificaciones de los strings insertados por el 
+  usuario en la consola y decide si llamar a la VM o manejarlos dentro de ella misma. Se llama a esta funcion de manera recursiva, ya que,
+  genera una nueva linea del REPL con cada llamada.*/
   newLine() {
     this.readline.question('<Stokhos> ', entrada => {
     var re = /.lex/gi;
@@ -27,8 +32,8 @@ export class REPL {
     }
     if (entrada.search(re) == 0){
       var instruccion = entrada.replace(re,"");
-      var retorna1 : string = this.VM_.lextest(instruccion,0);
-      if (retorna1 == "newLine"){
+      var retorna1 : Array<string> = this.VM_.lextest(instruccion,0);
+      if (retorna1[0] == "newLine"){
         this.newLine();
       }
     }
@@ -37,12 +42,9 @@ export class REPL {
       var fileName = name.replace(" ","");
       var retorna : [string, Array<Array<string>>] = this.VM_.leerArchivo(fileName,0);
       if (retorna[0] == "newLine"){
-        this.errores = this.errores.concat(retorna[1]);
         this.newLine();
       }
-      else{
-        this.errores = this.errores.concat(retorna[1]);
-      }
+      this.errores = this.errores.concat(retorna[1]);
     }
     if (entrada.search(re2) == 0){
       this.imprimirErrores();
@@ -50,12 +52,10 @@ export class REPL {
     if (entrada.search(re3) == 0){
       this.eliminarErrores();
     }
-    if (entrada.search(re4) == 0) {
-      var instruccion = entrada.replace(re4,"");
-      var retorna2 : string = this.VM_.testParser(instruccion,readline);
-      if (retorna2 == "newLine") {
-        this.newLine();
-      }
+    if (entrada.search(re4) == 0){
+      var line = entrada.replace(re4,"");
+      this.VM_.testParser(line);
+      this.newLine();
     }
     else{
       var a = entrada.search(re);
@@ -63,8 +63,8 @@ export class REPL {
       var c = entrada.search(re2);
       var d = entrada.search(re3);
       var e = entrada.search(re4);
-      if (entrada != "." && entrada != "" && entrada != " " && a != 0 && b != 0 && c != 0 && d != 0 && e != 0){
-        if (a > 0 || b > 0 || c > 0 || d > 0 || e > 0){
+      if (entrada != "." && entrada != "" && entrada != " " && a != 0 && b != 0 && c != 0 && d != 0 && e !=0){
+        if (a > 0 || b > 0 || c > 0 || d > 0){
           this.printInvalid(a,entrada); 
           this.printInvalid(b,entrada);
           this.printInvalid(c,entrada);
@@ -72,25 +72,26 @@ export class REPL {
           this.printInvalid(e,entrada);
         }
         else{
-          console.log("ERROR: Interpretacion no implementada");
+          this.VM_.process(entrada);
         }
         this.newLine();
       }
     }
     });
   }
-
+  /*La funcion printInvalid muestra por consola un error si el string introducido es incorrecto y solo se muestra al usuario el 
+  substring desde la posicion en que es correcto.*/
   printInvalid(a : number,entrada : string){
     if (a>0){
       console.log("ERROR: Caracter invalido ('" + entrada.substr(0,a) + "') en la entrada");
     }
   }
-
+  /*La funcion imprimirErrores es llamada por la funcion .failed y muestra en consola los errores de lectura de un archivo.*/
   imprimirErrores(){
     console.log(this.errores);
     this.newLine();
   }
-
+  /*La funcion eliminarErrores es llamada por la funcion .reset y inicializa el arreglo de errores como un arreglo vacio.*/
   eliminarErrores(){
     this.errores = [];
     this.newLine();
