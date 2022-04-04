@@ -295,7 +295,8 @@ export class VM {
 		}
 		/*La funcion predefinedLType toma una entrada de la VM y analiza su contenido para verificar si es un tipo asignable: arreglo,
 		definicion de variables. Se verifica si la entrada contiene [], si los contiene se busca el nombre del arreglo en la tabla de 
-		simbolos y si existe, se muestra el tipo del arreglo.
+		simbolos y si existe, se muestra el tipo del arreglo. Si se trata de la posicion de un arreglo, emite un error, ya que, no
+		existen los arreglos multidimensionales en el lenguaje.
 		Si se trata de una definicion de variable, se busca directamente en la tabla de simbolos, en caso de existir, se imprime su
 		tipo considerando que puede ser una variable de tipo num o bool o un arreglo de num o bool.*/
 	predefinedLType(input :string) : string {
@@ -303,36 +304,58 @@ export class VM {
 		input = input.replace("ltype(","");
 		var evaluate = input.substr(0,input.length-1);
 		var AST = this.parse(evaluate+";",1);
-		var typeOf = AST.ast.start.kind;
-		var typeOfInput = "";
 		//si es asignable es una variable y se encuentra en la tabla de simbolos
 		var re = /\[/gi;
 		var re1 = /\]/gi;
 		var typeOfInput = "";
+		var print = true;
 		if (evaluate.search(re) >= 0 && evaluate.search(re1) >= 0){
 			//esta llamando a una posicion de un arreglo
 			var arrayOf = input.split("[");
-			var p = this.symbolTable.search(arrayOf[0]);
-			if (p[0]!=false){
-				//existe el arreglo
-				typeOfInput = p[1].type;
-				console.log("ltype("+input+") ==> "+typeOfInput)
-			}
-			else{
-				console.log("ERROR: El arreglo "+arrayOf[0]+" no esta definido.");
+			if (arrayOf[0]!=""){
+				console.log("ERROR: La variable "+evaluate+" no es un asignable.");
+				print = false;
+		  }
+		  else{
+		  	var random = Math.floor(Math.random() * (1000000+1));
+				var stringAux = arrayOf[1].replace(")","").replace("]","").split(",");
+				var ast = this.parse(stringAux[0]+";",1);
+				var astA = validateAndEvaluate(ast,this.symbolTable);
+				var tipo = "";
+				astA[4].forEach(function(value) {
+				  tipo = value;
+				});
+		  	var string = "["+tipo+"] arr___"+random.toString()+":="+evaluate+";";
+		  	var AST = this.parse(string,1);
+		  	var res = validateAndEvaluate(AST,this.symbolTable);
+		  	if (res[0].length > 0){
+		  		print = false;
+		  		console.log("ERROR: "+res[0][0]);
+		  	}
+		  	else{
+		  		var getSymbol = res[2].search("arr___"+random.toString());
+			  	if (getSymbol[0]!= false){
+						if (getSymbol[1].array!=undefined){
+							typeOfInput = getSymbol[1].type;
+						}
+					}
+				}
 			}
 		}
-		var res = this.symbolTable.search(evaluate);
+		var evaluation1 = this.symbolTable.search(evaluate);
   	var isVar = false;
-  	if (res[0]!=false){
-  		typeOfInput = res[1].type;
-  		if (res[1].array != undefined){
-  			typeOfInput = "["+res[1].type+"]";
+  	if (evaluation1[0]!=false){
+  		typeOfInput = evaluation1[1].type;
+  		if (evaluation1[1].array != undefined){
+  			typeOfInput = "["+evaluation1[1].type+"]";
   		}
-  		console.log("ltype("+input+") ==> "+typeOfInput)
   	}
-  	if (evaluate.search(re) < 0 && evaluate.search(re1) < 0 && res[0]==false){
+  	if (evaluate.search(re) < 0 && evaluate.search(re1) < 0 && evaluation1[0]==false){
   		console.log("ERROR: La expresion "+evaluate+" no tiene LVALUE");
+  		print = false;
+  	}
+  	if (print == true){
+  		console.log("ltype("+input+") ==> "+typeOfInput);
   	}
 	  return typeOfInput;
 		}
@@ -351,37 +374,80 @@ export class VM {
 		return Math.floor(rad);
 	}
 	/*La funcion predefinedFloor retorna el mayor numero entero n tal que n<=x con x siendo el numero que se introduce por medio
-	de la entrada en la VM. Se parsea la expresion y luego se llama a la funcion de validacion paraa conseguir su tipo, en caso de
-	ser de tipo num, se puede conseguir floor(x), pero si no lo es, no es posible realizar la operacion.*/
+	de la entrada en la VM. Se parsea la expresion y luego se llama a la funcion de validacion para conseguir su tipo, en caso de
+	ser de tipo num, se puede conseguir floor(x), pero si no lo es, no es posible realizar la operacion.
+	Se verifica si la entrada es de tipo numerico, pudiendo ser un numero, una variable de tipo num o una posicion de un arreglo
+	de tipo num.
+	*/
 	predefinedFloor(input : string) : number {
 		input = input.replace(" ","");
 		input = input.replace("floor(","");
 		var value = input.substr(0,input.length-1);
-		var AST = this.parse(value+";",1);
+		var re = /\[/gi;
+		var re1 = /\]/gi;
 		var out = 0;
-		if (AST.ast != null){
-			var res = validateAndEvaluate(AST,this.symbolTable);
-			var evaluation = res[3];
-			var typeOf = "";
-			res[4].forEach(function(value) {
-				  typeOf = value;
-				});
-			if (typeOf == "num"){
-				out = Math.floor(parseFloat(evaluation[0]));
+		if (value.search(re) >= 0 && value.search(re1) >= 0){
+			var arrayOf = value.split("[");
+			if (arrayOf[0]==""){
+				console.log("ERROR: La entrada "+value+" no es de tipo num.");
+		  }
+		  else{
+		  	var pos = parseInt(arrayOf[1].replace("]","").replace(")",""));
+		  	var getSymbol = this.symbolTable.search(arrayOf[0]);
+		  	if (getSymbol[0]!= false){
+					if (getSymbol[1].array!=undefined && getSymbol[1].type == "num"){
+						out = Math.floor(parseFloat(getSymbol[1].array[pos]));
+						console.log(out);
+					}
+				}
+				else{
+					console.log("ERROR: La variable "+value+" no existe en la tabla de simbolos.");
+				}
 			}
-			else{
-				console.log("La entrada "+value+" no es de tipo num.");
-			}
-			console.log(out);
 		}
 		else{
-			console.log("ERROR: La expresion "+value+" no esta definida en la sintaxis de Stokhos.");
+			var AST = this.parse(value+";",1);
+			if (AST.ast != null && AST.ast != undefined){
+				var res = validateAndEvaluate(AST,this.symbolTable);
+				var evaluation = res[3];
+				var typeOf = "";
+				res[4].forEach(function(value) {
+					  typeOf = value;
+					});
+				if (typeOf == "num"){
+					var getSearch = this.symbolTable.search(value);
+			  	var isArray = false;
+			  	if (getSearch[0]!=false){
+			  		if (getSearch[1].array != undefined){
+			  			isArray = true;
+			  		}
+			  	}
+			  	if (isArray == true){
+			  		console.log("ERROR: La variable "+value+" es un arreglo, no un numero de tipo num.");
+			  	}
+			  	else{
+			  		out = Math.floor(parseFloat(evaluation[0]));
+			  		console.log(out);
+			  	}
+				}
+				else{
+					console.log("ERROR: La entrada "+value+" no es de tipo num.");
+				}
+			}
+			else{
+				console.log("ERROR: La expresion "+value+" no esta definida en la sintaxis de Stokhos.");
+			}
 		}
 		return out;
 	}
 	/*La funcion predefinedLength retorna el tamano de un arreglo que se introduce desde la VM. Se verifica si el nombre del arreglo
 	se encuentra en la tabla de simbolos, si se encuentra la variable y es un arreglo, se retorna su tamano, si no esta se muestra
-	un mensaje de error.*/
+	un mensaje de error. Se verifica que la entrada sea un arreglo o el nombre de una variable que representa a un arreglo.
+	Si contiene [] se trata de un arreglo introducido directamente, por lo que se incluye en la tabla de simbolos
+	con un nombre de arreglo random, luego se parsea este string y se consiguen sus valores, buscando directamente en la tabla de 
+	simbolos e iterando sobre el arreglo guardado dentro de ella.
+	Si no contiene [], se trata de una variable que representa un arreglo, solo se debe buscar en la tabla de simbolos y sumar los
+	valores del arreglo guardados dentro de esta estructura.*/
 	predefinedLength(input : string, val : number) : number {
 		input = input.replace(" ","");
 		input = input.replace("length(","");
@@ -402,7 +468,10 @@ export class VM {
 		  	var AST = this.parse(string,1);
 		  	var res = validateAndEvaluate(AST,this.symbolTable);
 		  	if (res[0].length > 0){
-		  		console.log("ERROR: "+res[0][0]);
+		  		if (val == 0){
+		  			console.log("ERROR: "+res[0][0]);
+		  		}
+		  		size = -1;
 		  	}
 		  	else{
 		  		var getSymbol = res[2].search("arr___"+random.toString());
@@ -414,16 +483,25 @@ export class VM {
 							}
 						}
 						else{
-							console.log("ERROR: La variable "+value+" no es un arreglo");
+							if (val == 0){
+								console.log("ERROR: La variable "+value+" no es un arreglo");
+							}
+							size = -1;
 						}
 					}
 		  	}			  	
 		  }
 			if (get[1].type == "" && value.search(re) < 0 && value.search(re1) < 0){
-				console.log("ERROR: La expresion "+value+" no es una variable, ni un arreglo");
+				if (val == 0){
+					console.log("ERROR: La expresion "+value+" no es una variable, ni un arreglo");
+				}
+				size = -1;
 			}
 			if (get[1].type != "" && value.search(re) < 0 && value.search(re1) < 0){
-				console.log("ERROR: La expresion "+value+" no puede sumarse con la funcion sum.");
+				if (val == 0){
+					console.log("ERROR: La expresion "+value+" no puede sumarse con la funcion sum.");
+				}
+				size = -1;
 			}
 		}
 		else{
@@ -435,7 +513,10 @@ export class VM {
 					}
 				}
 				else{
-					console.log("ERROR: La variable "+value+" no es un arreglo");
+					if (val == 0){
+						console.log("ERROR: La variable "+value+" no es un arreglo");
+					}
+					size = -1;
 				}
 			}
 		}
@@ -469,7 +550,10 @@ export class VM {
 			  	var AST = this.parse(string,1);
 			  	var res = validateAndEvaluate(AST,this.symbolTable);
 			  	if (res[0].length > 0){
-			  		console.log("ERROR: "+res[0][0]);
+			  		if (val == 0){
+			  			console.log("ERROR: "+res[0][0]);
+			  		}
+			  		sum = -1;
 			  	}
 			  	else{
 			  		var getSymbol = res[2].search("arr___"+random.toString());
@@ -483,17 +567,26 @@ export class VM {
 								}
 							}
 							else{
-								console.log("ERROR: La variable "+value+" no es un arreglo");
+								if (val == 0){
+									console.log("ERROR: La variable "+value+" no es un arreglo");
+								}
+								sum = -1;
 							}
 						}
 			  	}			  	
 			  }
 			}
 			if (get[1].type == "" && value.search(re) < 0 && value.search(re1) < 0){
-				console.log("ERROR: La expresion "+value+" no es una variable, ni un arreglo");
+				if (val == 0){
+					console.log("ERROR: La expresion "+value+" no es una variable, ni un arreglo");
+				}
+				sum = -1;
 			}
 			if (get[1].type != "" && value.search(re) < 0 && value.search(re1) < 0){
-				console.log("ERROR: La expresion "+value+" no puede sumarse con la funcion sum.");
+				if (val == 0){
+					console.log("ERROR: La expresion "+value+" no puede sumarse con la funcion sum.");
+				}
+				sum = -1;
 			}
 		}
 		else{
@@ -507,7 +600,10 @@ export class VM {
 					}
 				}
 				else{
-					console.log("ERROR: La variable "+value+" no es un arreglo");
+					if (val == 0){
+						console.log("ERROR: La variable "+value+" no es un arreglo");
+					}
+					sum = -1;
 				}
 			}
 		}
@@ -521,7 +617,12 @@ export class VM {
 		var value = input.substr(0,input.length-1);
 		var sum = this.predefinedSum("sum("+value+")",1);
 		var length = this.predefinedLength("length("+value+")",1);
-		console.log(sum / length);
+		if (sum != -1 && length != -1){
+			console.log(sum / length);
+		}
+		else{
+			console.log("ERROR: "+value+" no es un arreglo o es un arreglo de tipo distinto a num.");
+		}
 		return sum / length;
 	}
 	/*La funcion predefinedPi retorna una aproximacion a la constante Pi con doble precision.*/
