@@ -54,7 +54,7 @@ type representa el tipo de la variable y en array se aloja el arreglo de evaluac
 export class Symbol{
 	identifier : string;
 	value : string;
-	number : number;
+	number : any;
 	type : string;
 	array : Array<string>;
 	constructor(ID: string, val : string, type: string){

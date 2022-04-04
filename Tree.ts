@@ -247,10 +247,10 @@ export class Node{
   			var res = symbolTable.search(get);
   			if (res[0] != false){
   				if (res[1].type == "num"){
-  					output = parseFloat(res[1].value); //Si el nodo es un TkId, se verifica si esta en la tabla de simbolos y se consigue su 
+  					output = parseFloat(res[1].number); //Si el nodo es un TkId, se verifica si esta en la tabla de simbolos y se consigue su 
   				}                                    //valor para poder realizar la operacion deseada.
   				else{
-  					output = res[1].value;
+  					output = res[1].number;
   				}
   			}
   		}

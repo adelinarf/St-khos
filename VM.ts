@@ -182,28 +182,115 @@ export class VM {
 		var re = /\[/gi;
 		var re1 = /\]/gi;
 		var typeOfInput = "";
+		var print = true;
 		if (evaluate.search(re) >= 0 && evaluate.search(re1) >= 0){
 			//esta llamando a una posicion de un arreglo
 			var arrayOf = input.split("[");
-			var p = this.symbolTable.search(arrayOf[0]);
-			if (p[0]!=false){
-				//existe el arreglo
-				var symbol = p[1].array;
-				typeOfInput = p[1].type;
+			if (arrayOf[0]!=""){
+				var p = this.symbolTable.search(arrayOf[0]);
+				if (p[0]!=false){
+					//existe el arreglo
+					var symbol = p[1].array;
+					var float = parseFloat(p[1].number);
+					var integer = parseInt(p[1].number);
+					if (float == integer){
+						typeOfInput = "int";
+					}
+					else{
+						typeOfInput = "float";
+					}
+					//typeOfInput = p[1].type;
+				}
+				else{
+					print = false;
+					console.log("ERROR: La variable "+arrayOf[0]+" no existe");
+				}
 			}
 			else{
-				console.log("ERROR: El arreglo "+arrayOf[0]+" no esta definido.");
+				var random = Math.floor(Math.random() * (1000000+1));
+				var stringAux = arrayOf[1].replace(")","").replace("]","").split(",");
+				var ast = this.parse(stringAux[0]+";",1);
+				var astA = validateAndEvaluate(ast,this.symbolTable);
+				var tipo = "";
+				astA[4].forEach(function(value) {
+				  tipo = value;
+				});
+		  	var string = "["+tipo+"] arr___"+random.toString()+":="+evaluate+";";
+		  	var AST = this.parse(string,1);
+		  	var res = validateAndEvaluate(AST,this.symbolTable);
+		  	if (res[0].length > 0){
+		  		print = false;
+		  		console.log("ERROR: "+res[0][0]);
+		  	}
+		  	else{
+		  		var getSymbol = res[2].search("arr___"+random.toString());
+			  	if (getSymbol[0]!= false){
+						if (getSymbol[1].array!=undefined){
+							if (getSymbol[1].type == "num"){
+								var float = parseFloat(getSymbol[1].array[0]);
+								var integer = parseInt(getSymbol[1].array[0]);
+								if (float == integer){
+									typeOfInput = "int";
+								}
+								else{
+									typeOfInput = "float";
+								}
+							}
+							else{
+								typeOfInput = "boolean"; //getSymbol[1].type;
+							}
+						}
+					}
+				}
 			}
 		}
 		else{
 			var AST = this.parse(evaluate+";",1);
 			var res = validateAndEvaluate(AST,this.symbolTable);
 			var re = /TkId/gi;
+			var found = "";
 			res[4].forEach(function(value) {
-			  typeOfInput = value;
+			  found = value;
 			});
+			var gotten = this.symbolTable.search(evaluate);
+			if (gotten[0]!=false){
+				if (gotten[1].type == "num"){
+					var int = parseInt(gotten[1].number);
+					var flt = parseFloat(gotten[1].number);
+					if (int == flt){
+						typeOfInput = "int";
+					}
+					else{
+						typeOfInput = "float";
+					}
+				}
+				else{
+					typeOfInput = "boolean";
+				}
+			}
+			else{
+				if (found == "num"){
+					var int = parseInt(res[3][0]);
+					var flt = parseFloat(res[3][0]);
+					if (int == flt){
+						typeOfInput = "int";
+					}
+					else{
+						typeOfInput = "float";
+					}
+				}
+				if (found == "bool"){
+					typeOfInput = "boolean";
+				}
+				if (found != "num" && found != "bool"){
+					print = false;
+					console.log("ERROR: La variable "+evaluate+" no existe");
+				}
+			}
 		}
-		console.log("type("+input+") ==> "+typeOfInput);
+		if (print == true){
+			console.log("type("+input+") ==> "+typeOfInput);
+		}
 		return typeOfInput;
 		}
 		/*La funcion predefinedLType toma una entrada de la VM y analiza su contenido para verificar si es un tipo asignable: arreglo,
@@ -302,19 +389,55 @@ export class VM {
 		value = value.replace(" ","");
 		var get : [boolean,Symbol] = this.symbolTable.search(value);
 		var size = 0;
-		if (get[0]!= false){
-			if (get[1].array!=undefined){
-				size = get[1].array.length;
-				if (val == 0){
-					console.log(size);
-				}
+		var re = /\[/gi;
+		var re1 = /\]/gi;
+		var typeOfInput = "";
+		if (value.search(re) >= 0 && value.search(re1) >= 0){
+			//es un arreglo
+			var re2 = /\[num\]/gi;
+		  var re3 = /\[bool\]/gi;
+		  if (value.search(re2) < 0 && value.search(re3) < 0){
+		  	var random = Math.floor(Math.random() * (1000000+1));
+		  	var string = "[num] arr___"+random.toString()+":="+value+";";
+		  	var AST = this.parse(string,1);
+		  	var res = validateAndEvaluate(AST,this.symbolTable);
+		  	if (res[0].length > 0){
+		  		console.log("ERROR: "+res[0][0]);
+		  	}
+		  	else{
+		  		var getSymbol = res[2].search("arr___"+random.toString());
+			  	if (getSymbol[0]!= false){
+						if (getSymbol[1].array!=undefined){
+							size = getSymbol[1].array.length;
+							if (val == 0){
+								console.log(size);
+							}
+						}
+						else{
+							console.log("ERROR: La variable "+value+" no es un arreglo");
+						}
+					}
+		  	}			  	
+		  }
+			if (get[1].type == "" && value.search(re) < 0 && value.search(re1) < 0){
+				console.log("ERROR: La expresion "+value+" no es una variable, ni un arreglo");
 			}
-			else{
-				console.log("ERROR: La variable "+value+" introducida no es un arreglo");
+			if (get[1].type != "" && value.search(re) < 0 && value.search(re1) < 0){
+				console.log("ERROR: La expresion "+value+" no puede sumarse con la funcion sum.");
 			}
 		}
 		else{
-			console.log("ERROR: No existe un arreglo "+value);
+			if (get[0]!= false){
+				if (get[1].array!=undefined){
+					size = get[1].array.length;
+					if (val == 0){
+						console.log(size);
+					}
+				}
+				else{
+					console.log("ERROR: La variable "+value+" no es un arreglo");
+				}
+			}
 		}
 		return size;
 	}
