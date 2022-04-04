@@ -34,6 +34,8 @@ Luego se deben correr los comandos anteriores.
     "REPL.ts",
     "main.ts"
 
+También se puede realizar la corrida con los archivos batch de Windows: compilerWindows.bat y runWindows.bat, solo deben ejecutarse estos archivos en Windows, primero compilerWindows.bat y luego runWindows.bat para poder iniciar un nuevo REPL de Stókhos.
+Puede realizarse la corrida en otros sistemas operativos con los archivos run y compiler. Se debe ejecutar el archivo compiler y luego el archivo run para iniciar un nuevo REPL de Stókhos.
 
 # El REPL
 ## Primera etapa
