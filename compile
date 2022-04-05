@@ -1,6 +1,19 @@
 tspeg gramatica.peg parser.ts
 
-tsc -t ES2015 -m commonjs parser.ts
+tsc -t ES2021 -m commonjs parser.ts
+
+tspeg parserGrammar.peg parser2.ts
+
+tsc -t ES2021 -m commonjs parser2.ts
+
+tsc Tree.ts
+
+tsc parsingFunctions.ts
+
+tsc validateLibrary.ts 
+
+tsc VM.ts
+
+tsc REPL.ts
 
 tsc main.ts
-

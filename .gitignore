@@ -10,8 +10,14 @@ Dockerfile
 #generated files
 parser.ts
 parser.js
-prueba.js
+parser2.ts
+parser2.js
 main.js
+VM.js
+REPL.js
+Tree.js
+parsingFunctions.js
+validateLibrary.js
 
 # localization cutomization
 /src/.localization/localization.js
