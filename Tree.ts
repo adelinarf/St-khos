@@ -99,13 +99,15 @@ export class Node{
 		var c = parentPrecedence < left[1] && parentPrecedence < right[1];
 		var d = parentPrecedence > left[1] && parentPrecedence > right[1];
 		if (!a && !b && !c && !d){
-			if (this.type != "id"){
+			if (this.type != "id" && this.type != "function"){
 				output = left[0] + valor + right[0]; 
 			}
-			else{
+			if (this.type == "function"){
+				output = valor + "(" + right[0] + ")";
+			}
+			if (this.type == "id"){
 				output = valor + "[" + right[0] + "]";
 			}
-			
 		}
 		return [output,parentPrecedence];
 	}

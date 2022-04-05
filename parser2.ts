@@ -41,7 +41,7 @@
 * assign := space* id=TkId space* symbol=TkAssign space* e=exp space* TkSemicolon space*
 * array := space* p1=TkOpenBracket space* type=Type space* p2=TkCloseBracket space* id=TkId space* symbol=TkAssign space* p3=TkOpenBracket  space* e=termino space* p4=TkCloseBracket space* TkSemicolon space*
 * unary := TkPlus | TkMinus | TkNot 
-* terms := TkNumber | TkBoolean | value=TkId a={TkOpenBracket next=exp TkCloseBracket }? | lambda
+* terms := TkNumber | TkBoolean | value=TkId a={TkOpenBracket next=exp TkCloseBracket}? b={TkOpenPar next=exp TkClosePar}? | lambda
 * exp := space* e=e1 space*
 * e1 := e=e2 space* a={op={TkAnd | TkOr} next=e2}*
 * e2 := e=e3 space* a={op={TkEQ | TkNE} next=e3}*
@@ -115,6 +115,7 @@ export enum ASTKinds {
     terms_3 = "terms_3",
     terms_4 = "terms_4",
     terms_$0 = "terms_$0",
+    terms_$1 = "terms_$1",
     exp = "exp",
     e1 = "e1",
     e1_$0 = "e1_$0",
@@ -335,10 +336,15 @@ export interface terms_3 {
     kind: ASTKinds.terms_3;
     value: TkId;
     a: Nullable<terms_$0>;
+    b: Nullable<terms_$1>;
 }
 export type terms_4 = lambda;
 export interface terms_$0 {
     kind: ASTKinds.terms_$0;
+    next: exp;
+}
+export interface terms_$1 {
+    kind: ASTKinds.terms_$1;
     next: exp;
 }
 export interface exp {
@@ -1089,12 +1095,14 @@ export class Parser {
             () => {
                 let $scope$value: Nullable<TkId>;
                 let $scope$a: Nullable<Nullable<terms_$0>>;
+                let $scope$b: Nullable<Nullable<terms_$1>>;
                 let $$res: Nullable<terms_3> = null;
                 if (true
                     && ($scope$value = this.matchTkId($$dpth + 1, $$cr)) !== null
                     && (($scope$a = this.matchterms_$0($$dpth + 1, $$cr)) || true)
+                    && (($scope$b = this.matchterms_$1($$dpth + 1, $$cr)) || true)
                 ) {
-                    $$res = {kind: ASTKinds.terms_3, value: $scope$value, a: $scope$a};
+                    $$res = {kind: ASTKinds.terms_3, value: $scope$value, a: $scope$a, b: $scope$b};
                 }
                 return $$res;
             });
@@ -1113,6 +1121,21 @@ export class Parser {
                     && this.matchTkCloseBracket($$dpth + 1, $$cr) !== null
                 ) {
                     $$res = {kind: ASTKinds.terms_$0, next: $scope$next};
+                }
+                return $$res;
+            });
+    }
+    public matchterms_$1($$dpth: number, $$cr?: ErrorTracker): Nullable<terms_$1> {
+        return this.run<terms_$1>($$dpth,
+            () => {
+                let $scope$next: Nullable<exp>;
+                let $$res: Nullable<terms_$1> = null;
+                if (true
+                    && this.matchTkOpenPar($$dpth + 1, $$cr) !== null
+                    && ($scope$next = this.matchexp($$dpth + 1, $$cr)) !== null
+                    && this.matchTkClosePar($$dpth + 1, $$cr) !== null
+                ) {
+                    $$res = {kind: ASTKinds.terms_$1, next: $scope$next};
                 }
                 return $$res;
             });

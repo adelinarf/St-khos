@@ -41,7 +41,7 @@ assign := space* id=TkId space* symbol=TkAssign space* e=exp space* TkSemicolon 
 array := space* p1=TkOpenBracket space* type=Type space* p2=TkCloseBracket space* id=TkId space* symbol=TkAssign space* p3=TkOpenBracket  space* e=termino space* p4=TkCloseBracket space* TkSemicolon space*
 
 unary := TkPlus | TkMinus | TkNot 
-terms := TkNumber | TkBoolean | value=TkId a={TkOpenBracket next=exp TkCloseBracket }? | lambda
+terms := TkNumber | TkBoolean | value=TkId a={TkOpenBracket next=exp TkCloseBracket}? b={TkOpenPar next=exp TkClosePar}? | lambda
 
 exp := space* e=e1 space*
 

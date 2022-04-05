@@ -188,6 +188,11 @@ function parseE8(expr : e8) : Node {
                 var newChildren : Node = parseE1(expr.a.next.e as e1);
                 prev.addRightChildren(newChildren);
             }
+            if (expr.b != undefined){
+                prev.type = "function";
+                var newChildren : Node = parseE1(expr.b.next.e as e1);
+                prev.addRightChildren(newChildren);
+            }
         }
         else{
             prev = new Node(expr.value);
