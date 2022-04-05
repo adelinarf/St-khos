@@ -29,6 +29,10 @@ package-lock.json
 dst/
 build/
 
+# scripts
+compile
+run
+
 # ES Lint cache
 .eslintcache
 
