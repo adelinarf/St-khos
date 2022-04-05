@@ -27,6 +27,7 @@ validateLibrary.js
 *.old
 *.tmp
 *.xxx
+*.map
 
 # package lock file (best ignored during development not necessarily final releases)
 package-lock.json
