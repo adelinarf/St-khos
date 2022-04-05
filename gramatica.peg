@@ -1,4 +1,4 @@
-start := start = recursive $
+start := start = recursive space* $
 recursive := TkNumber | TkFalse | TkTrue | TkNum | TkBool | TkId | TkAssign | TkColon | TkSemicolon | TkComma | TkQuote | TkNot | TkOpenPar | TkClosePar | TkOpenBracket | TkCloseBracket | TkOpenBrace | TkCloseBrace | TkOr | TkAnd | TkPower | TkDiv | TkPlus | TkMult | TkMod | TkMinus | TkLE | TkNE | TkLT | TkGE | TkGT | TkEQ 
 TkNumber := space* value = '[0-9]+(?:\.[0-9]+)?' next=recursive*
 TkNum := space* value = 'num' !'[a-zA-Z0-9_]' next=recursive*

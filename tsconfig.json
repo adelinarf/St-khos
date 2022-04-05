@@ -9,6 +9,7 @@
     "parser.ts",
     "parser2.ts",
     "parsingFunctions.ts",
+    "Tree.ts",
     "VM.ts",
     "REPL.ts",
     "main.ts"

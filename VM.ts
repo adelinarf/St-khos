@@ -1,4 +1,4 @@
-import { parsing,blank } from "./parsingFunctions.js"
+import { parsing } from "./parsingFunctions.js"
 
 /*La clase VM implementa la maquina virtual de Stokhos que puede manejar el lexer, parser y lectura de archivos del lenguaje.
 Se inicializa con los parsers necesarios para utilizar el lexer y parser del lenguaje.*/
@@ -32,6 +32,9 @@ export class VM {
 			var parseo = this.parser(instruccion);
 			var pos = parseo.errs[0].pos.overallPos;
 			console.log("ERROR: Caracter invalido ('" + instruccion.charAt(pos) + "') en la entrada");
+			if (number == 1){
+				return ["ERROR: Caracter invalido ('" + instruccion.charAt(pos) + "') en la entrada"];
+			}
 		}
 		else{
 			  var listaTokens = this.showTokens(token);
@@ -66,12 +69,14 @@ export class VM {
 	    for (var i = 0; i < lines.length; i++) {
 	      var re = /.lex/gi;
 	      var re1 = /.load/gi;
+	      var re2 = /.ast/gi;
 	      if (lines[i] == " " || lines[i] == ""){
 	      	continue;
 	      }
 	      if (lines[i].search(re) != -1){
 	      	var instruccionMod = lines[i].replace(re,"");
-	      	this.lextest(instruccionMod,1);
+	      	var getError = this.lextest(instruccionMod,1);
+	      	errores.push([name, nLinea.toString(), getError[0]]);
 	      }
 	      if (lines[i].search(re1) != -1){
 	      	var name = lines[i].replace(re1,"");
@@ -79,8 +84,15 @@ export class VM {
 			    var error = this.leerArchivo(fileName,1);
 			    errores = errores.concat(error[1]);
 	      }
+	      if (lines[i].search(re2) != -1){
+	      	var line = lines[i].replace(re2,"");
+          var geterror = this.testParser(line);
+          if (geterror != ""){
+          	errores.push([name, nLinea.toString(), geterror]);
+          }
+	      }
 	      else{
-	      	if (lines[i] != "" && lines[i] != " " && lines[i].search(re) == -1 && lines[i].search(re1) == -1){
+	      	if (lines[i] != "" && lines[i] != " " && lines[i].search(re) == -1 && lines[i].search(re1) == -1 && lines[i].search(re2) == -1){
 	      		console.log("ERROR: Interpretacion no implementada");
 		        errores.push([lines[i], lines[i].toString(),"ERROR: Interpretacion no implementada"]);
 	      	}
@@ -131,128 +143,34 @@ export class VM {
   }
   /*La funcion testParser se utiliza al llamar a la funcion .ast en el REPL para probar el parser de Stokhos que a su vez llama 
   a la funcion parse de esta VM.*/
-  testParser(entrada : string){
-  	this.parse(entrada);
+  testParser(entrada : string) : string {
+  	var get = this.parse(entrada);
+  	return get;
   }
   /*La funcion parse recibe una entrada desde el REPL y llama a la funcion del lexer que otorga los tokens, luego se realiza un nuevo
   parseo de estos tokens y llama a la funcion ast2str que imprime el AST como string.*/
-  parse(entrada : string){
+  parse(entrada : string) : string {
   	var tokens : Array<string> = this.lextest(entrada,2);
   	tokens[tokens.length-1] = tokens[tokens.length-1].concat(" ");
   	var entradaModificada = tokens.join(" ");
   	var parseo = this.parser2(entradaModificada);
+  	var output = "";
   	try{
   		this.ast2str(parseo,entrada);
   	}
   	catch(parseo){
   		if (parseo.ast == null){
   			console.log("ERROR : '"+entrada+"' no es parte de la sintaxis de Stokhos.");
+  			output = "ERROR : '"+entrada+"' no es parte de la sintaxis de Stokhos.";
   		}
   	}
+  	return output;
   }
   /*La funcion ast2str toma el AST y la entrada del REPL, luego llama a la funcion parsing, que retorna un arreglo de strings con el 
   orden inorder del arbol y luego se mapea este arreglo con una estructura map que pasa los tokens a valores reales del lenguaje y
   finalmente con getString se retorna un string basado en el arreglo de strings que puede ser mostrado en consola.*/
   ast2str(AST : any,input : string){
-  	var arrayInorder = parsing(AST);
-  	var typeOfParsing = arrayInorder[arrayInorder.length-1];
-  	var inorderArrangement = arrayInorder.slice(0,arrayInorder.length-1);
-  	//console.log(arrayInorder);
-  	blank();
-  	var map = this.getNames();
-  	var stringToShow = this.getString(arrayInorder,map);
+  	var stringToShow = parsing(AST);
   	console.log("'"+input+"'"+"=parse=> [[AST]] =ast2str => '"+stringToShow+"'");
-  }
-  /*La funcion getString toma el arreglo de strings generado por el analisis del AST y una estructura map. Se analiza cada una
-  de las posiciones del arreglo y se modifica con la estructura map o sin ella en caso de ser TkId o TkNumber, los que deben
-  ser modificados, ya que, se debe conseguir el valor real que contienen entre los parentesis.
-  Si la expresion insertada en consola es una instruccion, se realiza el mismo procedimiento pero añadiendo los strings necesarios.*/ 
-  getString(arrayInorder : Array<string>, map : Map<string,string>) : string{
-  	var parseo : string = "";
-  	var re = /TkNumber/gi;
-  	var re1 = /TkId/gi;
-  	if (arrayInorder[arrayInorder.length-1] == "exp"){
-  		for (var i = 0; i < arrayInorder.length-1; i++) {
-  		if (arrayInorder[i].search(re) == 0 || arrayInorder[i].search(re1)==0){
-  			parseo = this.verifyToken(arrayInorder,parseo,i);
-  		}
-  		else{
-  			var stringS = map.get(arrayInorder[i]);
-  			parseo = parseo.concat(stringS);
-  		}  		
-  	}
-  	}
-  	else{
-  		parseo = "def(";
-  		for (var i = 0; i < arrayInorder.length-1; i++) {
-  			if (arrayInorder[i].search(re) == 0 || arrayInorder[i].search(re1)==0){
-  				parseo = this.verifyToken(arrayInorder,parseo,i);
-  		  }
-  		  else{
-  		  	var stringP = map.get(arrayInorder[i]);
-  		  	parseo = parseo.concat(stringP);
-  		  }  		
-	  		if (i < arrayInorder.length-2){
-	  			parseo = parseo.concat(",");
-	  		}
-	  		else{
-	  			parseo = parseo.concat(")");
-	  		}
-  		}
-  	}
-  	return parseo;
-  }
-  /*La funcion verifyToken verifica si el arreglo de strings contiene un token id o number y se elimina la informacion no relevante
-  para luego ser concatenado con el string final de la expresion.*/
-  verifyToken(arrayInorder : Array<string>, parseo :string, i :number) : string {
-  	  var re = /TkNumber\(/gi;
-  		var re1 = /TkId\(/gi;
-  		if (arrayInorder[i].search(re) == 0){
-  			var token = arrayInorder[i].replace(re,"");
-  			token = token.replace(") ","");
-  			parseo = parseo.concat(token);
-  		}
-  		if (arrayInorder[i].search(re1) == 0){
-  			var token = arrayInorder[i].replace(re1,"");
-  			token = token.replace(") ","");
-  			parseo = parseo.concat(token);
-  		}
-  	return parseo;
-  }
-  /*La funcion getNames retorna una estructura Map<string,string> que es capaz de mapear el nombre de cada token TkName con su valor
-  dentro del lenguaje Stokhos.*/
-  getNames() : Map<string,string> {
-  	var newMap = new Map<string,string>();
-  	newMap.set("TkNum","num");
-  	newMap.set("TkFalse ","false");
-  	newMap.set("TkTrue ","true");
-  	newMap.set("TkBool","bool");
-  	newMap.set("TkAssign",":=");
-  	newMap.set("TkColon",":");
-  	newMap.set("TkSemiColon",";");
-  	newMap.set("TkComma",",");
-  	newMap.set("TkQuote","'");
-  	newMap.set("TkNot","!");
-  	newMap.set("TkOpenPar","(");
-  	newMap.set("TkClosePar",")");
-  	newMap.set("TkOpenBracket","[");
-  	newMap.set("TkCloseBracket","]");
-  	newMap.set("TkOpenBrace","{");
-  	newMap.set("TkCloseBrace","}");
-  	newMap.set("TkOr","||");
-  	newMap.set("TkAnd","&&");
-  	newMap.set("TkPower","^");
-  	newMap.set("TkDiv","/");
-  	newMap.set("TkPlus","+");
-  	newMap.set("TkMult","*");
-  	newMap.set("TkMod","%");
-  	newMap.set("TkMinus","-");
-  	newMap.set("TkLE","<=");
-  	newMap.set("TkNE","<>");
-  	newMap.set("TkLT","<");
-  	newMap.set("TkGT",">");
-  	newMap.set("TkGE",">=");
-  	newMap.set("TkEQ","=");
-  	return newMap;
   }
 }

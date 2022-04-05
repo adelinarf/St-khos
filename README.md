@@ -18,7 +18,7 @@ En el branch Lenguaje-Stokhos-Etapa2, se deben ejecutar los siguientes comandos:
 En caso de realizar cambios en la gramática, se requieren los siguientes comandos para que se hagan efectivos:
 
     tspeg gramatica.peg parser.ts
-    tspeg gramatica.peg parser2.ts
+    tspeg parserGrammar.peg parser2.ts
     tsc -t ES2021 -m commonjs parser.ts
     tsc -t ES2021 -m commonjs parser2.ts
 
