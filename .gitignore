@@ -36,6 +36,7 @@ dst/
 build/
 
 # scripts
+clean
 compile
 run
 
