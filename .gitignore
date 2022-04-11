@@ -15,9 +15,7 @@ parser2.js
 main.js
 VM.js
 REPL.js
-Tree.js
-parsingFunctions.js
-validateLibrary.js
+getString.js
 
 # localization cutomization
 /src/.localization/localization.js
