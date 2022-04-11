@@ -1,4 +1,4 @@
-start:= start = grammar TkSemicolon $
+start:= start = grammar $
 grammar := declaration|assign|array|exp
 TkSemicolon := value = 'TkSemicolon '
 TkNumber := value = 'TkNumber\([0-9]+(?:\.[0-9]+)?\) '
@@ -33,23 +33,24 @@ TkFalse := value = 'TkFalse '
 TkTrue := value = 'TkTrue '
 TkBoolean := TkFalse | TkTrue
 Type := TkNum | TkBool
-lambda := value = ' '
+lambda := value = ''
+space := ' ' | '\\t' | '\n' | '\r\n'
 
-declaration := type=Type id=TkId symbol=TkAssign e=exp
-assign := id=TkId symbol=TkAssign e=exp 
-array := p1=TkOpenBracket type=Type p2=TkCloseBracket id=TkId symbol=TkAssign p3=TkOpenBracket e=termino p4=TkCloseBracket
+declaration := space* type=Type space* id=TkId space* symbol=TkAssign space* e=exp space* TkSemicolon space*
+assign := space* id=TkId space* a={TkOpenBracket next=exp TkCloseBracket}? space* symbol=TkAssign space* e=exp space* TkSemicolon space*
+array := space* p1=TkOpenBracket space* type=Type space* p2=TkCloseBracket space* id=TkId space* symbol=TkAssign space* p3=TkOpenBracket e=termino? p4=TkCloseBracket space* TkSemicolon space*
 
 unary := TkPlus | TkMinus | TkNot 
-terms := TkNumber | TkBoolean | TkId | lambda
+terms := TkNumber | TkBoolean | value=TkId a={TkOpenBracket next=exp TkCloseBracket}? b={TkOpenPar next=termino? TkClosePar}?
 
-exp := e=e1
+exp := space* e=e1 space*
 
-e1 := e=e2 a={op={TkAnd | TkOr} next=e2}*
-e2 := e=e3 a={op={TkEQ | TkNE} next=e3}*
-e3 := e=e4 a={op={TkLT | TkLE | TkGE | TkGT} next=e4}*
-e4 := e=e5 a={op={TkPlus | TkMinus} next=e5}*
-e5 := e=e6 a={op={TkMult | TkDiv | TkMod} next=e6}*
-e6 := uop=unary* e=e7 
-e7 := e=e8 a={op={TkPower} next=e8}*
-e8 := TkOpenPar value=exp TkClosePar | TkOpenBracket value=termino TkCloseBracket | TkOpenBrace value=exp TkCloseBrace | TkQuote value=exp TkQuote | terms
-termino := e=exp b={TkComma e=exp}*
+e1 := e=e2 space* a={op={TkAnd | TkOr} next=e2}*
+e2 := e=e3 space* a={op={TkEQ | TkNE} next=e3}*
+e3 := e=e4 space* a={op={TkLT | TkLE | TkGE | TkGT} next=e4}*
+e4 := e=e5 space* a={op={TkPlus | TkMinus} next=e5}*
+e5 := e=e6 space* a={op={TkMult | TkDiv | TkMod} next=e6}*
+e6 := uop=unary* space* e=e7 space*
+e7 := e=e8 space* a={op={TkPower} next=e8}*
+e8 := TkOpenPar space* value=exp space* TkClosePar | TkOpenBracket space* value=termino? space* TkCloseBracket | TkOpenBrace space* value=exp space* TkCloseBrace | TkQuote space* value=exp space* TkQuote | terms
+termino := space* e=exp space* b={TkComma e=exp}* space*

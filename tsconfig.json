@@ -8,9 +8,7 @@
   "files": [
     "parser.ts",
     "parser2.ts",
-    "Tree.ts",
-    "parsingFunctions.ts",
-    "validateLibrary.ts",
+    "getString.ts",
     "VM.ts",
     "REPL.ts",
     "main.ts"

@@ -27,15 +27,12 @@ Luego se deben correr los comandos anteriores.
 ## NOTA: El archivo tsconfig.json es un archivo que permite compilar al mismo tiempo varios archivos de Typescript. Se incluyen en dicho archivo:
     "parser.ts",
     "parser2.ts",
-    "Tree.ts",
-    "parsingFunctions.ts",
-    "validateLibrary.ts",
+    "getString.ts",
     "VM.ts",
     "REPL.ts",
     "main.ts"
 
-También se puede realizar la corrida con los archivos batch de Windows: compilerWindows.bat y runWindows.bat, solo deben ejecutarse estos archivos en Windows, primero compilerWindows.bat y luego runWindows.bat para poder iniciar un nuevo REPL de Stókhos.
-Puede realizarse la corrida en otros sistemas operativos con los archivos run y compiler. Se debe ejecutar el archivo compiler y luego el archivo run para iniciar un nuevo REPL de Stókhos.
+También se puede realizar la corrida con los archivos batch de Windows: compilerWindows.bat y runWindows.bat, solo deben ejecutarse estos archivos en Windows, primero compilerWindows.bat y luego runWindows.bat para poder iniciar un nuevo REPL de Stókhos. Puede realizarse la corrida en otros sistemas operativos con los archivos run y compiler. Se debe ejecutar el archivo compiler y luego el archivo run para iniciar un nuevo REPL de Stókhos.
 
 # El REPL
 ## Primera etapa
@@ -60,26 +57,8 @@ También se ha generado una función .ast que permite al usuario probar el parse
 Se puede llamar a la función .ast de la siguiente manera:
     
     <Stokhos> .ast (expresión)
+Obteniendo un resultado de la siguiente forma:
 
-Se debe considerar que tanto las expresiones como instrucciones deben terminar con punto y coma (;) para que puedan ser leídas por el lenguaje.
-Finalmente, se ha modificado la función de leerArchivo de la etapa 1, para que sea capaz de leer archivos que llamen a otros archivos dentro de sí mismos. Al llamar la funcion .ast se recibe la expresión con paréntesis que representa el AST como string.
+    OK : ast('expresión') ==> (expresión)
 
-# Validaciones estáticas y evaluación restringida de expresiones
-## Tercera etapa
-En esta etapa se ha comenzado a construir a la funcion process que es la responsable de recibir la entrada por parte del usuario que desea
-utilizar el lenguaje Stókhos. Se pueden utilizar las funciones:
-
-    if(condicion,exp1,exp2): Evalua la exp1 y exp2 bajo la condicion y si exp1 es cierta, retorna true, sino retorna la evaluación de exp2.
-    type(exp) : Retorna el tipo de la expresión exp.
-    ltype(exp) : Retorna el tipo de una expresión asignable (arreglo, definición o asignación).
-    reset() : Elimina todas las variables creadas por el usuario.
-    uniform() : Retorna un número aleatorio entero entre 0 y 1.
-    floor(exp) : Retorna un número n tal que n<=exp, siempre que la expresión exp sea de tipo num.
-    length(exp) : Retorna el tamaño de un arreglo exp.
-    sum(exp) : Retorna la suma de los elementos de un arreglo exp.
-    avg(exp) : Retorna el promedio del valor de los elementos de un arreglo exp.
-    pi() : Retorna un aproximado de la constante Pi con doble precisión.
-    now() : Retorna un número entero correspondiente al número de milisegundos transcurridos desde un punto de referencia en el tiempo.
-
-Además se puede hacer uso de las variables, se pueden generar variables y operar con ellas, a su vez que es posible obtener los valores de 
-las expresiones que se introducen en el lenguaje y realizar operaciones. Es importante señalar que en Stókhos las expresiones 'x' y x son equivalentes, por lo que se ignoran las comillas simples al momento de definir una variable o escribir una expresión dentro del REPL del lenguaje.
+Siendo (expresión), la expresión introducida por el usuario, pero que incluye los paréntesis relevantes. Finalmente, se ha modificado la función de leerArchivo de la etapa 1, para que sea capaz de leer archivos que llamen a otros archivos dentro de sí mismos. Pueden ser utilizadas las funciones .ast y .lex dentro de los archivos que se desean cargar por medio de .load pero al realizar operaciones o definicinoes de variables sin llamar a las funciones .ast y .lex se observa un error en la consola, ya que, aún no se ha implementado dicha funcionalidad en la etapa 2.
