@@ -61,4 +61,5 @@ Obteniendo un resultado de la siguiente forma:
 
     OK : ast('expresión') ==> (expresión)
 
-Siendo (expresión), la expresión introducida por el usuario, pero que incluye los paréntesis relevantes. Finalmente, se ha modificado la función de leerArchivo de la etapa 1, para que sea capaz de leer archivos que llamen a otros archivos dentro de sí mismos. Pueden ser utilizadas las funciones .ast y .lex dentro de los archivos que se desean cargar por medio de .load pero al realizar operaciones o definicinoes de variables sin llamar a las funciones .ast y .lex se observa un error en la consola, ya que, aún no se ha implementado dicha funcionalidad en la etapa 2.
+Siendo (expresión), la expresión introducida por el usuario, pero que incluye los paréntesis relevantes. 
+Finalmente, se ha modificado la función de leerArchivo de la etapa 1, para que sea capaz de leer archivos que llamen a otros archivos dentro de sí mismos. Pueden ser utilizadas las funciones .ast y .lex dentro de los archivos que se desean cargar por medio de .load pero al realizar operaciones o definiciones de variables sin llamar a las funciones .ast y .lex se observa un error en la consola, ya que, aún no se ha implementado dicha funcionalidad en la etapa 2.
