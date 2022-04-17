@@ -1,11 +1,18 @@
 //import { parsing } from "./parsingFunctions.js"
+import {HashTable, Symbol} from "./hashtable.js"
 import { getString } from "./getString.js"
+import { getType , getASTType} from "./getTypes.js"
+import { getEvaluation } from "./getEvaluation.js"
+
 
 /*La clase VM implementa la maquina virtual de Stokhos que puede manejar el lexer, parser y lectura de archivos del lenguaje.
 Se inicializa con los parsers necesarios para utilizar el lexer y parser del lenguaje.*/
 export class VM {
   parser = require("./parser.js").parse;
   parser2 = require("./parser2.js").parse;
+  symbolTable = new HashTable();
+  computeCycle = 0;
+  currentCycle = 0;
   constructor() {
   	this.parser = require("./parser.js").parse;
   	this.parser2 = require("./parser2.js").parse;
@@ -13,8 +20,58 @@ export class VM {
   /*La funcion process es el hilo principal en el que se puede utilizar el lenguaje Stokhos. 
   NOTA: Aun no ha sido implementado.
   */
-  process(input : string){
-  	console.log("ERROR: Interpretacion no implementada.");
+  process(input : string) : string {
+  	var AST = this.parse(input,1);
+  	var errores = "";
+  	try{
+	  	var types = getASTType(getType(AST,this.symbolTable,0),AST.ast.start.kind);
+	  	if (types[0]!=""){
+	  		var typeOfInput = AST.ast.start.kind;
+	  		if (typeOfInput == "declaration" || typeOfInput == "array" || typeOfInput == "assign"){
+	  			this.execute(AST);
+	  		}
+	  		else{
+	  			this.eval(AST);
+	  		}
+	  	}
+	  	else{
+	  		console.log(types[1][0]);
+	  		errores = types[1][0];
+	  	}
+	  }
+  	catch(error){
+  		if (error instanceof RangeError){
+				console.log("ERROR: Stack Overflow");
+				errores = "ERROR: Stack Overflow";
+  		}
+  		if (error.ast == null){
+  			console.log("ERROR: La expresion '"+input+"' no forma parte de la sintaxis de Stokhos.");
+  			errores = "ERROR: La expresion '"+input+"' no forma parte de la sintaxis de Stokhos.";
+  		}
+  	}
+  	return errores;
+  }
+  execute(AST : any){
+  	var execution = getEvaluation(AST,this.symbolTable,this.computeCycle,1);
+  	console.log("ACK: "+getString(AST,1));
+  	this.symbolTable = execution[1];
+  	this.computeCycle = execution[2];
+  	this.currentCycle = this.computeCycle;
+  	this.computeCycle +=1;
+  }
+  eval(AST : any){
+  	var evaluate = 0;
+  	if (this.computeCycle != this.currentCycle){
+  		evaluate = 1;
+  		this.currentCycle = this.computeCycle;
+  	}
+  	var evaluation = getEvaluation(AST,this.symbolTable,this.computeCycle,evaluate);
+  	this.symbolTable = evaluation[1];
+  	this.computeCycle = evaluation[2];
+  	if (Array.isArray(evaluation[0])){
+  		evaluation[0] = "["+evaluation[0].toString()+"]";
+  	}
+  	console.log("OK: "+getString(AST,1)+" ==> "+evaluation[0]);
   }
   /*La funcion lextest es el lexer del lenguaje Stokhos, se encarga de manejar la entrada introducida por el usuario y generar los
   tokens con los que trabajara el parser luego. Tiene varias funcionalidad, el numero de entrada number puede ser 0, en caso de llamar
@@ -60,9 +117,7 @@ export class VM {
   /*La funcion leerArchivo, lee las lineas de un archivo y llama a la funcion lextest anterior para analizarlas. Si el archivo
   contiene una linea que tenga la funcion .load, esta se llama a si misma para ese y archivo y termina de procesar dicho archivo
   antes de comenzar con el original. En caso de errores, se guardan en un arreglo y se retornan al REPL en donde hay una variable
-  global de la clase que guarda los errores de las corridas realizadas con .load.
-  Se pueden utilizar las funciones .ast y .lex dentro de los archivos que se desean cargar por medio de .load, aunque no se encuentra
-  disponible el procesamiento de las expresiones con la funcion process, por lo que se obtendra un error.*/
+  global de la clase que guarda los errores de las corridas realizadas con .load*/
   leerArchivo(name,call) : [string,Array<Array<string>>] {
 	const fs = require('fs');
 
@@ -100,8 +155,10 @@ export class VM {
 	      }
 	      else{
 	      	if (lines[i] != "" && lines[i] != " " && lines[i].search(re) == -1 && lines[i].search(re1) == -1 && lines[i].search(re2) == -1){
-	      		console.log("ERROR: Interpretacion no implementada");
-		        errores.push([name, nLinea.toString(),"ERROR: Interpretacion no implementada"]);
+	      		var e = this.process(lines[i]);
+	      		if (e!=""){
+	      			errores.push([name, nLinea.toString(),e]);
+	      		}
 	      	}
 	      }
 	      nLinea += 1;
@@ -182,7 +239,7 @@ export class VM {
   orden inorder del arbol y luego se mapea este arreglo con una estructura map que pasa los tokens a valores reales del lenguaje y
   finalmente con getString se retorna un string basado en el arreglo de strings que puede ser mostrado en consola.*/
   ast2str(AST : any,input : string){
-  	var stringToShow = getString(AST);
+  	var stringToShow = getString(AST,0);
   	console.log("OK: ast('"+input+"') ==> "+stringToShow);
   }
 }

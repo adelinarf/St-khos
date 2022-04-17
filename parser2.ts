@@ -39,7 +39,7 @@
 * space := ' ' | '\\t' | '\n' | '\r\n'
 * declaration := space* type=Type space* id=TkId space* symbol=TkAssign space* e=exp space* TkSemicolon space*
 * assign := space* id=TkId space* a={TkOpenBracket next=exp TkCloseBracket}? space* symbol=TkAssign space* e=exp space* TkSemicolon space*
-* array := space* p1=TkOpenBracket space* type=Type space* p2=TkCloseBracket space* id=TkId space* symbol=TkAssign space* p3=TkOpenBracket e=termino? p4=TkCloseBracket space* TkSemicolon space*
+* array := space* p1=TkOpenBracket space* type=Type space* p2=TkCloseBracket space* id=TkId space* symbol=TkAssign space* e=exp space* TkSemicolon space*
 * unary := TkPlus | TkMinus | TkNot 
 * terms := TkNumber | TkBoolean | value=TkId a={TkOpenBracket next=exp TkCloseBracket}? b={TkOpenPar next=termino? TkClosePar}?
 * exp := space* e=e1 space*
@@ -326,9 +326,7 @@ export interface array {
     p2: TkCloseBracket;
     id: TkId;
     symbol: TkAssign;
-    p3: TkOpenBracket;
-    e: Nullable<termino>;
-    p4: TkCloseBracket;
+    e: exp;
 }
 export type unary = unary_1 | unary_2 | unary_3;
 export type unary_1 = TkPlus;
@@ -1052,9 +1050,7 @@ export class Parser {
                 let $scope$p2: Nullable<TkCloseBracket>;
                 let $scope$id: Nullable<TkId>;
                 let $scope$symbol: Nullable<TkAssign>;
-                let $scope$p3: Nullable<TkOpenBracket>;
-                let $scope$e: Nullable<Nullable<termino>>;
-                let $scope$p4: Nullable<TkCloseBracket>;
+                let $scope$e: Nullable<exp>;
                 let $$res: Nullable<array> = null;
                 if (true
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
@@ -1068,14 +1064,12 @@ export class Parser {
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
                     && ($scope$symbol = this.matchTkAssign($$dpth + 1, $$cr)) !== null
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
-                    && ($scope$p3 = this.matchTkOpenBracket($$dpth + 1, $$cr)) !== null
-                    && (($scope$e = this.matchtermino($$dpth + 1, $$cr)) || true)
-                    && ($scope$p4 = this.matchTkCloseBracket($$dpth + 1, $$cr)) !== null
+                    && ($scope$e = this.matchexp($$dpth + 1, $$cr)) !== null
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
                     && this.matchTkSemicolon($$dpth + 1, $$cr) !== null
                     && this.loop<space>(() => this.matchspace($$dpth + 1, $$cr), true) !== null
                 ) {
-                    $$res = {kind: ASTKinds.array, p1: $scope$p1, type: $scope$type, p2: $scope$p2, id: $scope$id, symbol: $scope$symbol, p3: $scope$p3, e: $scope$e, p4: $scope$p4};
+                    $$res = {kind: ASTKinds.array, p1: $scope$p1, type: $scope$type, p2: $scope$p2, id: $scope$id, symbol: $scope$symbol, e: $scope$e};
                 }
                 return $$res;
             });

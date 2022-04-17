@@ -65,25 +65,18 @@ function mapping() : Map<string,string>{
   }
 
 
-function search(array : Array<any>,nombre : Function) : string {
+function search(array : Array<any>,nombre : Function,pos : number, value : any, counter: number, newVal :e1) : number {
 	var string = "";
+	var count = counter;
     if (array != undefined && array.length>0){
         for (var i = 0; i < array.length; i++) {
             var entrada = array[i].next;
-            string = string + map(array[i].op.kind) +nombre(entrada);
+            count = nombre(entrada,pos,value,count,newVal);
         }
     }
-    return string;
+    return count;
 }
 
-
-
-export function stringOfE1(expr : e1) : string {
-	return parseE1(expr);
-}
-export function stringOfArray(expr : termino) : string{
-	return parseArray(expr);
-}
 /*La funciones parseEi se encargan de visitar los nodos del arbol AST generados por el parser. Ademas se generan nodos en cada
 una de las funciones. Se llama a la funcion search que se encarga de visitar el atributo a que contiene los hijos de la operacion
 en el arbol, por lo que si es undefined, no contiene hijos y esa regla en particular no ha sido aplicada.
@@ -95,79 +88,44 @@ A diferencia de la funcion parsing se requiere el retorno de un nodo y un string
 para realizar el analisis de tipos al llegar a la funcion parseE8.*/
 
 /*La funcion parseE1 maneja la regla 1 de la gramatica.*/
-function parseE1(expr : e1) : string {
-	var leftVar : string = parseE2(expr.e);
-	var now : string = search(expr.a,parseE2);
-    var salida = "";
-	if (now != ""){
-		salida = "("+leftVar + now+")";
-	}
-	else{
-		salida = leftVar;
-	}
-    return salida;
+function parseE1(expr : e1,pos : number, value : any, counter: number, newVal :e1) : number {
+	var leftVar = parseE2(expr.e,pos,value,counter,newVal);
+	var now = search(expr.a,parseE2,pos,value,leftVar,newVal);
+    return now;
 }
 
 /*La funcion parseE2 maneja la regla 2 de la gramatica.*/
-function parseE2(expr : e2) : string {
-	var leftVar : string = parseE3(expr.e);
-	var now : string = search(expr.a,parseE3);
-    var salida = "";
-	if (now != ""){
-		salida = "("+leftVar + now+")";
-	}
-	else{
-		salida = leftVar;
-	}
-    return salida;
+function parseE2(expr : e2,pos : number, value : any, counter: number, newVal :e1) : number {
+	var leftVar = parseE3(expr.e,pos,value,counter,newVal);
+	var now = search(expr.a,parseE3,pos,value,leftVar,newVal);
+    return now;
 }
 
 /*La funcion parseE3 maneja la regla 3 de la gramatica.*/
-function parseE3(expr : e3) : string {
-	var leftVar : string = parseE4(expr.e);
-	var now : string = search(expr.a,parseE4);
-    var salida = "";
-	if (now != ""){
-		salida = "("+leftVar + now+")";
-	}
-	else{
-		salida = leftVar;
-	}
-    return salida;
+function parseE3(expr : e3,pos : number, value : any, counter: number, newVal :e1) : number {
+	var leftVar = parseE4(expr.e,pos,value,counter,newVal)
+	var now = search(expr.a,parseE4,pos,value,leftVar,newVal);
+    return now;
 }
 
 /*La funcion parseE4 maneja la regla 4 de la gramatica.*/
-function parseE4(expr : e4) : string {
-	var leftVar : string = parseE5(expr.e);
-	var now : string = search(expr.a,parseE5);
-    var salida = "";
-	if (now != ""){
-		salida = "("+leftVar + now+")";
-	}
-	else{
-		salida = leftVar;
-	}
-    return salida;
+function parseE4(expr : e4,pos : number, value : any, counter: number, newVal :e1) : number {
+	var leftVar = parseE5(expr.e,pos,value,counter,newVal);
+	var now  = search(expr.a,parseE5,pos,value,leftVar,newVal);
+    return now;
 }
 
 /*La funcion parseE5 maneja la regla 5 de la gramatica.*/
-function parseE5(expr : e5) : string {
-	var leftVar : string = parseE6(expr.e);
-	var now : string = search(expr.a,parseE6);
-    var salida = "";
-	if (now != ""){
-		salida = "("+leftVar + now+")";
-	}
-	else{
-		salida = leftVar;
-	}
-    return salida;
+function parseE5(expr : e5,pos : number, value : any, counter: number, newVal :e1) : number {
+	var leftVar = parseE6(expr.e,pos,value,counter,newVal);
+	var now : number = search(expr.a,parseE6,pos,value,leftVar,newVal);
+    return now;
 }
 
 /*La funcion parseE6 maneja la regla 6 de la gramatica. Esta regla considera unicamente los operadores unarios, por lo que no se
 hace un llamado a la funcion search, ya que, no existe este atributo.*/
-function parseE6(expr : e6) : string {
-	var leftVar : string = parseE7(expr.e);
+function parseE6(expr : e6,pos : number, value : any, counter: number, newVal :e1) : number {
+	var leftVar = parseE7(expr.e,pos,value,counter,newVal);
 	var salida = "";
     if (expr.uop != undefined && expr.uop.length > 0){
     	salida = map(expr.uop[0].kind);
@@ -175,27 +133,14 @@ function parseE6(expr : e6) : string {
     	    salida = salida + map(expr.uop[i].kind);
         }
     }
-    if (salida!=""){
-    	salida = "("+salida + leftVar+")";
-    }
-    else{
-    	salida = leftVar;
-    }
-    return salida;
+    return leftVar;
 }
 
 /*La funcion parseE7 maneja la regla 7 de la gramatica*/
-function parseE7(expr : e7) : string {
-	var leftVar = parseE8(expr.e);
-	var now : string = search(expr.a,parseE8);
-	var salida = "";
-	if (now != ""){
-		salida = "("+leftVar + now+")"; //"("+leftVar + now+")"
-	}
-	else{
-		salida = leftVar;
-	}
-    return salida;
+function parseE7(expr : e7,pos : number, value : any, counter: number, newVal :e1) : number {
+	var leftVar = parseE8(expr.e,pos,value,counter,newVal);
+	var now : number = search(expr.a,parseE8,pos,value,leftVar,newVal);
+    return now;
 }
 
 /*La funcion parseE8 maneja la regla 8 de la gramatica, por lo que se encarga de los simbolos: {},[] y () y retorna un nodo
@@ -203,10 +148,9 @@ que contiene unicamente el valor de un TkId, TkNumber, TkFalse y TkTrue. Se veri
 guarda en el tipo del nodo y si es un ID se analiza la tabla de simbolos para verificar que existe, si no existe se guarda como 
 error. En caso de ser unicamente, expresiones, se llega a esta funcion la primera vez con type="", por lo que hay un caso que maneja
 esto, para luego modificar el tipo de la primera variable o valor encontrado.*/
-function parseE8(expr : e8) : string {
-	var salida : string;
+function parseE8(expr : e8,pos : number, value : any, counter: number, newVal :e1) : number {
+	var salida : string = "";
 	if (expr.kind == "e8_1" || expr.kind == "e8_3" || expr.kind == "e8_4"){
-        salida = parseE1(expr.value.e as e1);
         if (expr.kind == "e8_4"){
         	salida = "'"+salida+"'";
         }
@@ -215,62 +159,49 @@ function parseE8(expr : e8) : string {
         }
     }
     if (expr.kind == "e8_2"){
-    	salida = parseArray(expr.value);
-    	salida = "["+salida+"]";   	
+    	if (expr.value!=undefined){
+    		if (pos == 0){
+    			expr.value.e.e = newVal;
+    		}
+    		else{
+    			expr.value.b[pos-1].e.e = newVal;
+    		}
+    	}
+		salida = "["+salida+"]";    	
     }
     if (expr.kind != "e8_1" && expr.kind != "e8_2" && expr.kind != "e8_3" && expr.kind != "e8_4"){
     	if (expr.kind == "terms_3"){
-            if (expr.a != undefined){
-                salida = map(expr.value.value) +"[" + parseE1(expr.a.next.e as e1) + "]";
-            }
-            if (expr.b != undefined){
-            	if (expr.b.next!=undefined){
-            		salida = map(expr.value.value) +"(" + parseArray(expr.b.next)+")";
-            	}
-            	else{
-            		salida = map(expr.value.value) +"()";
-            	}
-            	
-            }
-            if (expr.a == undefined && expr.b == undefined){
-            	salida = map(expr.value.value);
-            }
+            salida = expr.value.value;
         }
         else{
-            salida = map(expr.value);
+        	if (counter == pos){
+        	    counter = counter +1;	
+        	}
         }
     }
-    return salida;
-}
-
-function parseArray(expr : termino) : string {
-	var aSalir = "";
-	if (expr!=null && expr.e != null && expr.e.e!=null){
-	    var initNode = parseE1(expr.e.e);
-	    aSalir = initNode;
-	    if (expr.b != undefined){
-	    	for (var i = 0; i < expr.b.length; i++) {
-	            var n = parseE1(expr.b[i].e.e);
-	            aSalir = aSalir + ","+n;
-	        }
-	    }
-	}
-    return aSalir;
+    return counter;
 }
 
 /*La funcion parseTermino analiza un arreglo y verifica un arbol por cada una de las posiciones del arreglo, luego crea el string
 que representa al arreglo en su totalidad. Tambien se crea un arreglo con la evaluacion de cada una de las posiciones y los tipos.*/
-function parseTermino(expr : termino) : string {
-    var initNode = parseE1(expr.e.e);
+function parseTermino(expr : termino,pos : number, value : any, counter : number, tipo:string,newE : e1) {
+	if (pos==0){
+		expr.e.e = newE;
+	}
+	else{
+		//expr.b[pos-1].e.e = newE;
+		console.log(expr.e.e.e.e.e.e.e.e);
+		//var d = expr.e.e.e.e.e.e.e.e.e.value as termino;
+		//console.log(d.e.e);
+		//console.log(d.b);
+	}
+    /*var initNode = parseE1(expr.e.e,pos,value,counter,tipo);
     var aSalir = initNode;
     if (expr.b != undefined){
     	for (var i = 0; i < expr.b.length; i++) {
-            var n = parseE1(expr.b[i].e.e);
-            aSalir = aSalir + ","+n;
+            aSalir = parseE1(expr.b[i].e.e,pos,value,aSalir,tipo);
         }
-    }
-    aSalir = "["+aSalir+"]";
-    return aSalir;
+    }*/
 }
 
 /*La funcion validateAndEvaluate visita el AST obtenido por medio del parser para realizar la validacion y evaluacion de las expresiones introducidas
@@ -290,81 +221,22 @@ Se retorna una tupla de tipo [Array<string>,string,HashTable,Array<any>,Set<stri
 	en Stokhos, ya que, se conocen los tipos, la nueva tabla de simbolos, su string asociado, los errores que genera en caso de hacerlo y
 	la evaluacion de la expresion en los valores guardados en tabla de simbolos y otras expresiones.
 */
-export function getString(ASTtree : any, mode : number) : string {
+export function change(ASTtree : any, pos : number, value : any, newE :e1) : any {
     var type = ASTtree.ast.start.kind; 
     let valor = ASTtree.ast.start.e as e1;
-    var arbol : string;
-    if (type == "declaration"){
-        valor = ASTtree.ast.start.e.e as e1;
-        var declarationType = ASTtree.ast.start.type.kind;
-        var declarationID = ASTtree.ast.start.id.value;
-        if (mode == 0){
-        	arbol = "Def("+map(declarationType) +","+ map(declarationID) +","+ parseE1(valor)+")";
-        }
-        if (mode == 1){
-        	arbol = map(declarationType)+" "+map(declarationID)+" := "+parseE1(valor)+";";
-        }
-        if (mode!=0 && mode!=1){
-        	arbol = parseE1(valor);
-        }
-    }
-    if (type == "assign"){ //se debe buscar el tipo en la tabla de simbolos si no existe se lanza un error
-    	var assignId = ASTtree.ast.start.id.value;
-    	valor = ASTtree.ast.start.e.e as e1;
-    	if (ASTtree.ast.start.a != undefined){
-    		var pos = parseE1(ASTtree.ast.start.a.next.e);
-    		if (mode == 0){
-    		    arbol = "Def("+map(assignId) +"["+pos.toString()+"]"+","+ parseE1(valor)+")";	
-    		}
-    		if (mode == 1){
-    			arbol = map(assignId)+"["+pos.toString()+"]"+" := "+ parseE1(valor)+";";
-    		}
-    		if (mode!=0 && mode!=1){
-    			arbol = parseE1(valor);
-    		}
-    	}
-    	else{
-    		if (mode == 0){
-    			arbol = "Def("+map(assignId)+","+parseE1(valor)+")";
-    		}
-    		if (mode == 1){
-    			arbol = map(assignId)+" := "+parseE1(valor)+";";
-    		}
-    		if (mode!=0 && mode!=1){
-    			arbol = parseE1(valor);
-    		}
-    	}
-    }
+    var arbol : number;
+    var counter = 0;
     if (type == "array"){
-        var valor2 = ASTtree.ast.start.e.e as e1;
+        var valor2 = ASTtree.ast.start.e as termino;
         var arrayType = ASTtree.ast.start.type.kind;
         var arrayName = ASTtree.ast.start.id.value;
         if (ASTtree.ast.start.e != null){
-        	if (mode == 0){
-        		arbol = "Def("+"["+map(arrayType)+"]," + map(arrayName) +","+ parseE1(valor2)+")";	
-        	}
-        	if (mode == 1){
-        		arbol = "["+map(arrayType)+"] "+map(arrayName)+":="+parseE1(valor2)+";";
-        	}
-        	if (mode!=0 && mode!=1){
-        		arbol = parseE1(valor2);
-        	}
-        	
+        	//parseTermino(valor2,pos,value,counter,map(arrayType),newE);	
+        	var a = parseE1(ASTtree.ast.start.e.e,pos,value,counter,newE); 
         }
         else{
-        	if (mode == 0){
-        		arbol = "Def("+"["+map(arrayType)+"]," + map(arrayName) +",[])";
-        	}
-        	if (mode == 1){
-        		arbol = "["+map(arrayType)+"] "+map(arrayName)+":= [];";
-        	}
-        	if (mode!=0 && mode!=1){
-        		arbol = "[]";
-        	}
+        	console.log("NO HAY AST");
         }
     }
-    if (type == "exp"){
-    	arbol = parseE1(valor);
-    }
-    return arbol;
+    return ASTtree;
 }
