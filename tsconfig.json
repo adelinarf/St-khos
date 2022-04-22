@@ -8,7 +8,12 @@
   "files": [
     "parser.ts",
     "parser2.ts",
+    "hashtable.ts",
     "getString.ts",
+    "getTypes.ts",
+    "getEvaluation.ts",
+    "searchType.ts",
+    "changeAST.ts",
     "VM.ts",
     "REPL.ts",
     "main.ts"

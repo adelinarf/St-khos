@@ -281,9 +281,6 @@ function parseE8(expr : e8,evaluate : number) : any {
     }
     if (expr.kind == "e8_4"){
     	salida = parseE1(expr.value.e as e1,evaluate);
-    	//if (evaluate == 1){
-    	//	salida = "'"+salida.toString()+"'";
-    	//}
     }
     if (expr.kind == "e8_2"){ //esta salida es la de un arreglo
     	salida = parseArray(expr.value,evaluate);
@@ -294,20 +291,24 @@ function parseE8(expr : e8,evaluate : number) : any {
             	salida = parseE1(expr.a.next.e as e1,evaluate);
                 var getSearch = symbol.search(map(expr.value.value));
                 if (getSearch[0]!=false){
-                	if (evaluate == 0){
-                		salida = getSearch[1].array[salida];
-                	}
-                	if (evaluate == 1){
-                		var f = getSearch[1].AST.ast.start.e.e.e.e.e.e.e.e.e;
+                	if (computedCyles != getSearch[1].cycle){  //hacer todas las cosas asi como en esta
+        				var f = getSearch[1].AST.ast.start.e.e.e.e.e.e.e.e.e;
                 		var pos = salida;
-                		if (salida == 0){
+                		if (salida == 0 && f.value.e.e.e.e.e.e.e.e.e.kind == "e8_4"){
                 			salida = parseE1(f.value.e.e,evaluate);
                 		}
-                		else{
+                		if (salida != 0 && f.value.b[salida-1].e.e.e.e.e.e.e.e.e.kind == "e8_4"){
                 			salida = parseE1(f.value.b[salida-1].e.e,evaluate);
                 		}
+                		else{
+                			salida = getSearch[1].array[salida];
+                		}
                 		getSearch[1].array[pos] = salida; 
-                	}
+    					getSearch[1].arrayCycle[pos] = computedCyles;
+				  	}
+				  	else{
+				  		salida = getSearch[1].array[salida];
+				  	}
                 }
             }
             if (expr.b != undefined){ //esta salida es la de las funcion
@@ -323,32 +324,25 @@ function parseE8(expr : e8,evaluate : number) : any {
             	var getV = symbol.search(map(expr.value.value));
             	if (getV[0]!=false){
             		var t = getV[1].AST.ast.start.kind;
-            		if (t == "declaration" || t=="assign"){
-            			if (evaluate == 0){
-            				//if (getV[1].AST.ast.start.e.e.e.e.e.e.e.e.e.kind == "e8_4"){
-            				salida = getV[1].value;
-            			}
-            			if (evaluate == 1){
-            				salida = parseE1(getV[1].AST.ast.start.e.e,evaluate);
-            				getV[1].value = salida;
-            			}
-            			/*var re = /\'/gi;
-            			var str : string = (getV[1].value).toString();
-            			if (str.search(re) != -1){
-            				salida = parseE1(getV[1].AST.ast.start.e.e,evaluate);
-            			}
-            			else{
-            				salida = getV[1].value;
-            			}*/
+            		if (t == "declaration" || t == "assign"){
+            			if (computedCyles != getV[1].cycle && getV[1].AST.ast.start.e.e.e.e.e.e.e.e.e.kind == "e8_4"){  //hacer todas las cosas asi como en esta
+					  		salida = parseE1(getV[1].AST.ast.start.e.e,0);
+        					getV[1].value = salida;
+        					getV[1].cycle = computedCyles;
+					  	}
+					  	else{
+					  		salida = getV[1].value;
+					  	}
             		}
             		if (t == "array"){
-            			if (evaluate == 0){
-            				salida = getV[1].array;
-            			}
-            			if (evaluate == 1){
-            				salida = parseE1(getV[1].AST.ast.start.e.e,evaluate);
+            			if (computedCyles != getV[1].cycle){  //hacer todas las cosas asi como en esta
+					  		salida = parseE1(getV[1].AST.ast.start.e.e,evaluate);
             				getV[1].array = salida;
-            			}
+        					getV[1].cycle = computedCyles;
+					  	}
+					  	else{
+					  		salida = getV[1].array;
+					  	}
             		}
             	}
             }
@@ -479,17 +473,12 @@ function formulaFun(expr : termino) : any {
 		if (search[0]!=false){
 			var termino = search[1].AST.ast.start.e;
 			if (pos==0){
-				//console.log(search[1].AST.ast.start.e.e.e.e.e.e.e.e.e);
-				//console.log(search[1].AST.ast.start.e.e.e.e.e.e.e.e.e.value.e.e);
 				var ast = search[1].AST.ast.start.e.e.e.e.e.e.e.e.e.value.e.e;
 				out = stringOfE1(ast);
 			}
 			else{
-				//console.log(search[1].AST.ast.start.e.e.e.e.e.e.e.e);
-				//console.log(search[1].AST.ast.start.e.e.e.e.e.e.e.e.e.value.b[pos-1].e.e);
 				var ast = search[1].AST.ast.start.e.e.e.e.e.e.e.e.e.value.b[pos-1].e.e;
 				out = stringOfE1(ast);
-				//out = getString(termino.b[pos-1].e.e,2);
 			}
 		}
 	}
@@ -525,24 +514,25 @@ function histogramFun(expr : termino) : Array<any> {
 	while (count < nsamples){
 		var exp = parseE1(expr.e.e,0);
 		if (exp <= lowerBound){
-			results[0] = results[0]+1;
-			values[0] = exp;
+			results[0]+=1;
+			values.push(exp);
 		}
 		if (exp >= upperBound){
-			results[results.length-1] = results[results.length-1] + 1;
-			values[values.length-1] = exp; 
+			results[results.length-1] += 1;
+			values.push(exp); 
 		}
 		if (exp > lowerBound && exp < upperBound){
-			results[Math.floor(exp%results.length)] = results[Math.floor(exp%results.length)] + 1; 
-			values[Math.floor(exp%results.length)] = Math.floor(exp%results.length);
+			results[positionInResults(lowerBound,upperBound,nbuckets,exp)] += 1; 
+			values.push(exp);
 		}
 		count += 1;
 		tickFun();
 	}
 	var spaces : string = (results.length).toString();
 	var space : number = spaces.length;
+	var sumOfResult = results.reduce((acc, cur) => acc + cur, 0);
 	for (var i = 0; i<results.length;i++){
-		var bars : string = getBars(results[i]);
+		var bars : string = getBars(percentageOfBars(results[i],sumOfResult));
 		var numberStr : string = i.toString();
 		var digitQuantity : number = numberStr.length;
 		console.log(getSpaces(space-digitQuantity)+i.toString() + "  "+bars);
@@ -553,15 +543,26 @@ function histogramFun(expr : termino) : Array<any> {
 	for (var x = 1; x<results.length;x++){
 		e8.value.b.push({kind : ASTKinds.termino_$0, e : object(results[x])});
 	}
-	//var e : e8 = {kind : ASTKinds.e8_2 , value : {kind : ASTKinds.termino, e : {kind : ASTKinds.exp, e: arbol[arbol.length-1] }, b : []}};
 	var output : Array<any> = [];
 	output = output.concat(results);
 	output.push(e8,"histogram");
 	return output;
 }
 
+function percentageOfBars(value : number, sum : number) : number {
+	var quantityOfBars = (value*74)/sum;
+	return quantityOfBars;
+}
+
+function positionInResults(lB : number, uB : number, nBuckets: number, value : number) : number {
+	var quantity = uB - lB;
+	var sizeOfBuckets = quantity/nBuckets;
+	var pos = (value + Math.abs(lB))/sizeOfBuckets;
+	return Math.ceil(pos);
+}
+
 function object(val : number) : exp {
-	var e8 : e8 = {kind : ASTKinds.TkNumber , value : "TkNumber("+val.toString()+")"};
+	var e8 : e8 = {kind : ASTKinds.TkNumber , value : "TkNumber("+val.toString()+") "};
 	var e7 : e7 = {kind : ASTKinds.e7 , e : e8 , a: []};
 	var e6 : e6 = {kind : ASTKinds.e6 , e : e7 ,uop : []};
 	var e5 : e5 = {kind : ASTKinds.e5 , e : e6 , a: []};
@@ -679,7 +680,9 @@ function resetFun() : boolean {
 	return true;
 }
 function uniformFun() : number {
-	var rad = (Math.random() * (2));
+	var max = 1;
+	var min = 0;
+	var rad = Math.random() * (max - min) + min;
 	//var output = (Math.floor(rad));
 	return rad;
 }
@@ -759,7 +762,7 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         var declarationID = ASTtree.ast.start.id.value;
         arbol = parseE1(valor,evaluate);
         var t = getASTType(getType(ASTtree,symbolTable,0),type);
-        symbolTable.insert(new Symbol(map(declarationID),arbol,t[0],ASTtree));
+        symbolTable.insert(new Symbol(map(declarationID),arbol,t[0],ASTtree,computedCyles));
         //guardar variable
     }
     if (type == "assign"){ //se debe buscar el tipo en la tabla de simbolos si no existe se lanza un error
@@ -770,13 +773,36 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
     		var pos = parseE1(ASTtree.ast.start.a.next.e,evaluate);  //valor de la posicion
     		var obtain = symbol.search(map(assignId));
     		if (obtain[0]!=false){
-    			symbolTable.modifyArray(map(assignId),pos,arbol,valor);
+    			symbolTable.modifyArray(map(assignId),pos,arbol,valor,computedCyles);
     		}
     	}
     	else{
     		arbol = parseE1(valor,evaluate);  //guardar variable
-    		var ty = getASTType(getType(ASTtree,symbolTable,1),type);
-    		symbolTable.modify(map(assignId),arbol,ty[0],[],ASTtree); 
+    		var getS = symbol.search(map(assignId));
+    		if (getS[0]!=false){
+    		    if (Array.isArray(arbol)){
+    		    	var originalAST = getS[1].AST;
+	    		    if (arbol[arbol.length-1] == "histogram"){
+		        		originalAST.ast.start.e.e.e.e.e.e.e.e.e = arbol[arbol.length-2];
+		        		var arbolMod1 = arbol.slice(0,arbol.length-2);
+		        		arbol = arbolMod1;
+		        	}
+		        	if (arbol[arbol.length-1] == "arrayFun"){
+		        		var arbolM1 = arbol.slice(0,arbol.length-2);
+		        		var e : e8 = {kind : ASTKinds.e8_2 , value : {kind : ASTKinds.termino, e : {kind : ASTKinds.exp, e: arbol[arbol.length-2] }, b : []}};
+		        		originalAST.ast.start.e.e.e.e.e.e.e.e.e = e;
+		        		for (var i = 0 ; i < arbolM1.length-1 ; i++){
+		        			originalAST.ast.start.e.e.e.e.e.e.e.e.e.value.b.push({kind : ASTKinds.termino, e : {kind : ASTKinds.exp, e: arbol[arbol.length-2] }});
+		        		}
+		        		arbol = arbolM1;
+		        	}
+		        	symbolTable.modify(map(assignId),"",getS[1].type,arbol,originalAST,computedCyles);
+	    		}
+	    		else{
+	    			//var ty = getASTType(getType(ASTtree,symbolTable,1),type);
+	    			symbolTable.modify(map(assignId),arbol,getS[1].type,[],ASTtree,computedCyles);
+	    		}	
+    		}
     	}
     }
     if (type == "array"){
@@ -794,13 +820,14 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         		var arbolM = arbol.slice(0,arbol.length-2);
         		var e : e8 = {kind : ASTKinds.e8_2 , value : {kind : ASTKinds.termino, e : {kind : ASTKinds.exp, e: arbol[arbol.length-2] }, b : []}};
         		ASTtree.ast.start.e.e.e.e.e.e.e.e.e = e;
-        		for (var i = 0 ; i < arbolMod.length-1 ; i++){
+        		for (var i = 0 ; i < arbolM.length-1 ; i++){
         			ASTtree.ast.start.e.e.e.e.e.e.e.e.e.value.b.push({kind : ASTKinds.termino, e : {kind : ASTKinds.exp, e: arbol[arbol.length-2] }});
         		}
         		arbol = arbolM;
         	}
-        	var symbols = new Symbol(map(arrayName),"",map(arrayType),ASTtree);
-        	symbols.array = arbol; 
+        	var symbols = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCyles);
+        	symbols.array = arbol;
+        	symbols.arrayCycle = [...Array(arbol.length)].map(x => computedCyles);
         	symbolTable.insert(symbols);
         }
         else{

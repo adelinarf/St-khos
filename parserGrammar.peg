@@ -38,7 +38,7 @@ space := ' ' | '\\t' | '\n' | '\r\n'
 
 declaration := space* type=Type space* id=TkId space* symbol=TkAssign space* e=exp space* TkSemicolon space*
 assign := space* id=TkId space* a={TkOpenBracket next=exp TkCloseBracket}? space* symbol=TkAssign space* e=exp space* TkSemicolon space*
-array := space* p1=TkOpenBracket space* type=Type space* p2=TkCloseBracket space* id=TkId space* symbol=TkAssign space* p3=TkOpenBracket e=termino? p4=TkCloseBracket space* TkSemicolon space*
+array := space* p1=TkOpenBracket space* type=Type space* p2=TkCloseBracket space* id=TkId space* symbol=TkAssign space* e=exp space* TkSemicolon space*
 
 unary := TkPlus | TkMinus | TkNot 
 terms := TkNumber | TkBoolean | value=TkId a={TkOpenBracket next=exp TkCloseBracket}? b={TkOpenPar next=termino? TkClosePar}?

@@ -703,7 +703,12 @@ function parseFunction(expr : termino, tipos:Array<string>,tiposOp:Array<string>
 			    	errores.push("ERROR: El primer argumento de la funcion array debe ser de tipo num.");
 			    }
 			    else{
-			    	tipos = [init[0][1],"array"];
+			    	if (init[0].length!=1){
+			    		tipos = [init[0][1],"array"];
+			    	}
+			    	else{
+			    		tipos = [init[0][0],"array"];
+			    	}
 			    	//tipos.push(init[0][1]);
 			    	//tipos.push("array");
 			    }

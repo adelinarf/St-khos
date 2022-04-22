@@ -6,7 +6,7 @@ y el símbolo * representa una regla de la gramática que puede ser utilizada 0 
 	<grammar>    -> <definition> | <assign> | <array> | <exp>
 	<definition> -> <space>* <type> <space>* <id> <space>* <assignSymbol> <space>* <exp> <space>* <semicolon> <space>*
 	<assign>     -> <space>* <id> <space>* <position>? <space>* <assignSymbol> <space>* <exp> <space>* <semicolon> <space>*
-	<array>      -> <space>* <OpenBracket> <space>* <type> <space>* <CloseBracket> <space>* <id> <space>* <assignSymbol> <space>* <OpenBracket> <space>* <termino>? <space>* <CloseBracket> <space>* <semicolon> <space>*
+	<array>      -> <space>* <OpenBracket> <space>* <type> <space>* <CloseBracket> <space>* <id> <space>* <assignSymbol> <space>* <OpenBracket> <space>* <termino> <space>* <CloseBracket> <space>* <semicolon> <space>*
 
 	<position> ->  <OpenBracket> <exp> <CloseBracket>
 
@@ -14,7 +14,7 @@ y el símbolo * representa una regla de la gramática que puede ser utilizada 0 
 	<terms>    -> <number> | <boolean> | <id> <call1>? <call2>?
 
 	<call1>    -> <OpenBracket> <exp> <CloseBracket>
-	<call2>    -> <OpenPar> <termino>? <ClosePar>
+	<call2>    -> <OpenPar> <argument> <ClosePar>
 
 	<exp>      -> <space>* <e1> <space>*
 	<e1>       -> <e2> <space>* (<and>|<or>)*          | <e2>
@@ -24,10 +24,11 @@ y el símbolo * representa una regla de la gramática que puede ser utilizada 0 
 	<e5>       -> <e6> <space>* (<mult>|<div>|<mod>)*  | <e6>
 	<e6>       -> <unary>* <space>* <e7>               | <e7>
 	<e7>       -> <e8> <space>* (<power>)*             | <e8>  
-	<e8>       -> <OpenPar> <space>* <exp> <space>* <ClosePar> | <OpenBracket> <space>* <termino>? <space>* <CloseBracket> | <OpenBrace> <space>* <exp> <space>* <CloseBrace> | <quote> <space>* <exp> <space>* <quote> | <terms>
+	<e8>       -> <OpenPar> <space>* <exp> <space>* <ClosePar> | <OpenBracket> <space>* <exp> <space>* <CloseBracket> | <OpenBrace> <space>* <exp> <space>* <CloseBrace> | <quote> <space>* <exp> <space>* <quote> | <terms>
 
 	<termino>  -> <space>* <exp> <space>* <element>* <space>*
 	<element>  -> <comma> <exp>
+	<argument> -> <termino> | <lambda>  
 
 	<space>        -> ' ' | '\\t' | '\n' | '\r\n'
 	<semicolon>    -> '\;'

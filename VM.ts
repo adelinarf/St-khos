@@ -3,7 +3,7 @@ import {HashTable, Symbol} from "./hashtable.js"
 import { getString } from "./getString.js"
 import { getType , getASTType} from "./getTypes.js"
 import { getEvaluation } from "./getEvaluation.js"
-
+import {searchType} from "./searchType.js"
 
 /*La clase VM implementa la maquina virtual de Stokhos que puede manejar el lexer, parser y lectura de archivos del lenguaje.
 Se inicializa con los parsers necesarios para utilizar el lexer y parser del lenguaje.*/
@@ -24,7 +24,11 @@ export class VM {
   	var AST = this.parse(input,1);
   	var errores = "";
   	try{
-	  	var types = getASTType(getType(AST,this.symbolTable,0),AST.ast.start.kind);
+  		var typeOfEntry = AST.ast.start.kind;
+  		if (AST.ast.start.kind == "assign"){
+  			typeOfEntry = searchType(AST,this.symbolTable);
+  		}
+	  	var types = getASTType(getType(AST,this.symbolTable,0),typeOfEntry);
 	  	if (types[0]!=""){
 	  		var typeOfInput = AST.ast.start.kind;
 	  		if (typeOfInput == "declaration" || typeOfInput == "array" || typeOfInput == "assign"){
@@ -52,25 +56,21 @@ export class VM {
   	return errores;
   }
   execute(AST : any){
+  	this.computeCycle +=1;
   	var execution = getEvaluation(AST,this.symbolTable,this.computeCycle,1);
   	console.log("ACK: "+getString(AST,1));
   	this.symbolTable = execution[1];
   	this.computeCycle = execution[2];
-  	this.currentCycle = this.computeCycle;
-  	this.computeCycle +=1;
   }
   eval(AST : any){
   	var evaluate = 0;
-  	if (this.computeCycle != this.currentCycle){
-  		evaluate = 1;
-  		this.currentCycle = this.computeCycle;
-  	}
   	var evaluation = getEvaluation(AST,this.symbolTable,this.computeCycle,evaluate);
   	this.symbolTable = evaluation[1];
   	this.computeCycle = evaluation[2];
   	if (Array.isArray(evaluation[0])){
   		evaluation[0] = "["+evaluation[0].toString()+"]";
   	}
+  	this.currentCycle = this.computeCycle;
   	console.log("OK: "+getString(AST,1)+" ==> "+evaluation[0]);
   }
   /*La funcion lextest es el lexer del lenguaje Stokhos, se encarga de manejar la entrada introducida por el usuario y generar los

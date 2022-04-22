@@ -29,29 +29,32 @@ export class HashTable {
 				return [true,this.list[key][i]];
 			}
 		}
-		return [false,new Symbol("","","","")];
+		return [false,new Symbol("","","","",0)];
 	}
 	/*La funcion modify modifica una variable dentro de la tabla de simbolos. Se busca la variable y se actualizan sus valores de
 	identifier, value,number, type y array (en caso de ser un arreglo).*/
-	modify(variable : string, newVal : string,type:string,array : Array<string>, newAST: any) {
+	modify(variable : string, newVal : string,type:string,array : Array<string>, newAST: any,cycle:number) {
 		var key = this.h(variable);
 		for (var i = 0; i < this.list[key].length; i++) {
 			if (this.list[key][i].identifier == variable){
 				this.list[key][i].value = newVal;
 				this.list[key][i].type = type;
 				this.list[key][i].AST = newAST;
+				this.list[key][i].cycle = cycle;
 				if (this.list[key][i].array != undefined){
 					this.list[key][i].array = array;
+					this.list[key][i].arrayCycle = [...Array(array.length)].map(x => cycle);
 				}
 			}
 		}
 	}
-	modifyArray(variable : string, pos : number, newVal : any, neweAtPos : e1){
+	modifyArray(variable : string, pos : number, newVal : any, neweAtPos : e1, cycle : number){
 		var key = this.h(variable);
 		for (var i = 0; i < this.list[key].length; i++) {
 			if (this.list[key][i].identifier == variable){
 				this.list[key][i].array[pos] = newVal;
 				this.list[key][i].AST = change(this.list[key][i].AST,pos,newVal,neweAtPos);
+				this.list[key][i].arrayCycle[pos] = cycle;
 				break;
 			}
 		}
@@ -73,18 +76,21 @@ export class Symbol{
 	number : any;
 	type : any;
 	array : Array<string>;
+	cycle : number;
+	arrayCycle : Array<number>;
 	AST : any;
-	constructor(ID: string, val : any, type: any, tree : any){
+	constructor(ID: string, val : any, type: any, tree : any, cycle : number){
 		this.identifier = ID;
 		this.value = val;
 		this.type = type;
 		this.AST = tree;
+		this.cycle = cycle;
 	}
 	addArray(arr : Array<string>){
 		this.array = arr;
 	}
 	copy() : Symbol{
-		var symbol = new Symbol(this.identifier,this.value,this.type,this.AST);
+		var symbol = new Symbol(this.identifier,this.value,this.type,this.AST,this.cycle);
 		return symbol;
 	}
 }
