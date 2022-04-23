@@ -1,0 +1,4 @@
+rm -f parser.ts
+rm -f parser2.ts
+rm -f *.map
+rm -f *.js
