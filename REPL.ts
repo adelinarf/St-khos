@@ -72,7 +72,9 @@ export class REPL {
           this.printInvalid(e,entrada);
         }
         else{
-          this.VM_.process();
+          // Added argument to remove compilation error
+          // REPL.ts(75,20): error TS2554: Expected 1 arguments, but got 0.
+          this.VM_.process(null);
         }
         this.newLine();
       }
