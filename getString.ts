@@ -1,70 +1,8 @@
 import { e1,e2,e3,e4,e5,e6,e7,e8,termino, e2_$0 } from "./parser2";
+import {map, mapping} from "./mappingFunctions.js"
 
-/*La funcion search se encarga de buscar los hijos a derecha del arbol que estamos generando. Se crea un padre, que es la operacion
-y de manera recursiva se incluyen los hijos derechos e izquierdos de este padre, para que se genere un arbol binario con el orden
-correcto y que representa a este AST pero con un arbol binario.*/
-
-function map(token : string) : string {
-		var re = /TkNumber\(/gi;
-		var re1 = /TkId\(/gi;
-		var re2 = /Tk/gi;
-		var nuevo = "";
-		if (token.search(re) == 0){
-			var token = token.replace(re,"");
-			token = token.replace(") ","");
-			nuevo = token;
-		}
-		if (token.search(re1) == 0){
-			var token = token.replace(re1,"");
-			token = token.replace(") ","");
-			nuevo = token;
-		}
-		if (token.search(re2) == 0){  //Si el token no es ni TkNumber ni TkId se llama a una funcion que contiene una estructura map
-			var mappedTo = mapping(); //que mapea cada uno de los tokens del lenguaje a su verdadero valor.
-			nuevo = mappedTo.get(token);
-		}
-		else{
-			nuevo = token;
-		}
-		return nuevo;
-	}
-
-function mapping() : Map<string,string>{
-  	var newMap = new Map<string,string>();
-  	newMap.set("TkNum","num");
-  	newMap.set("TkFalse ","false");
-  	newMap.set("TkTrue ","true");
-  	newMap.set("TkBool","bool");
-  	newMap.set("TkAssign",":=");
-  	newMap.set("TkColon",":");
-  	newMap.set("TkSemiColon",";");
-  	newMap.set("TkComma",",");
-  	newMap.set("TkQuote","'");
-  	newMap.set("TkNot","!");
-  	newMap.set("TkOpenPar","(");
-  	newMap.set("TkClosePar",")");
-  	newMap.set("TkOpenBracket","[");
-  	newMap.set("TkCloseBracket","]");
-  	newMap.set("TkOpenBrace","{");
-  	newMap.set("TkCloseBrace","}");
-  	newMap.set("TkOr","||");
-  	newMap.set("TkAnd","&&");
-  	newMap.set("TkPower","^");
-  	newMap.set("TkDiv","/");
-  	newMap.set("TkPlus","+");
-  	newMap.set("TkMult","*");
-  	newMap.set("TkMod","%");
-  	newMap.set("TkMinus","-");
-  	newMap.set("TkLE","<=");
-  	newMap.set("TkNE","<>");
-  	newMap.set("TkLT","<");
-  	newMap.set("TkGT",">");
-  	newMap.set("TkGE",">=");
-  	newMap.set("TkEQ","=");
-  	return newMap;
-  }
-
-
+/*La funcion search se encarga de buscar los hijos a derecha del arbol que estamos generando. Se alojan los resultados de los strings
+anteriores en una variable llamada string que retorna la funcion, una vez analizadas todas las operaciones.*/
 function search(array : Array<any>,nombre : Function) : string {
 	var string = "";
     if (array != undefined && array.length>0){
@@ -76,23 +14,20 @@ function search(array : Array<any>,nombre : Function) : string {
     return string;
 }
 
-
-
+/*La funcion stringOfE1 permite retornar el string de un objeto del AST sin tener que llamar a la funcion getString.*/
 export function stringOfE1(expr : e1) : string {
 	return parseE1(expr);
 }
+/*La funcion stringOfArray permite retornar el string de un arreglo sin necesidad de llamar a la funcion getString.*/
 export function stringOfArray(expr : termino) : string{
 	return parseArray(expr);
 }
+
 /*La funciones parseEi se encargan de visitar los nodos del arbol AST generados por el parser. Ademas se generan nodos en cada
 una de las funciones. Se llama a la funcion search que se encarga de visitar el atributo a que contiene los hijos de la operacion
 en el arbol, por lo que si es undefined, no contiene hijos y esa regla en particular no ha sido aplicada.
-Se debe considerar que se van generando los nodos de manera recursiva, por lo que el arbol consiste de un nodo que recursivamente 
-contiene hijos que forman un arbol binario que puede visitarse con mayor facilidad que el arbol que nos proporciona el parser.
-En cada funcion parseEi se llama a la funcion parseEi+1 si es utilizada la regla i y se genera un nodo cuyos hijos son el acumulado de
-visitar de manera recursiva a la regla siguiente y la busqueda del atributo a.
-A diferencia de la funcion parsing se requiere el retorno de un nodo y un string que es el tipo de la expresion que se esta analizando 
-para realizar el analisis de tipos al llegar a la funcion parseE8.*/
+En cada funcion parseEi se llama a la funcion parseEi+1 de manera recursiva y se retorna un string que se concatena con las demas 
+operaciones y expresiones conseguidas al visitar el arbol.*/
 
 /*La funcion parseE1 maneja la regla 1 de la gramatica.*/
 function parseE1(expr : e1) : string {
@@ -171,7 +106,7 @@ function parseE6(expr : e6) : string {
 	var salida = "";
     if (expr.uop != undefined && expr.uop.length > 0){
     	salida = map(expr.uop[0].kind);
-        for (var i = 1; i < expr.uop.length; i++) { //esto debe ser uno para que funcionen los unarios
+        for (var i = 1; i < expr.uop.length; i++) {
     	    salida = salida + map(expr.uop[i].kind);
         }
     }
@@ -190,7 +125,7 @@ function parseE7(expr : e7) : string {
 	var now : string = search(expr.a,parseE8);
 	var salida = "";
 	if (now != ""){
-		salida = "("+leftVar + now+")"; //"("+leftVar + now+")"
+		salida = "("+leftVar + now+")";
 	}
 	else{
 		salida = leftVar;
@@ -198,11 +133,8 @@ function parseE7(expr : e7) : string {
     return salida;
 }
 
-/*La funcion parseE8 maneja la regla 8 de la gramatica, por lo que se encarga de los simbolos: {},[] y () y retorna un nodo
-que contiene unicamente el valor de un TkId, TkNumber, TkFalse y TkTrue. Se verifica el tipo del termino, si es un numero, se
-guarda en el tipo del nodo y si es un ID se analiza la tabla de simbolos para verificar que existe, si no existe se guarda como 
-error. En caso de ser unicamente, expresiones, se llega a esta funcion la primera vez con type="", por lo que hay un caso que maneja
-esto, para luego modificar el tipo de la primera variable o valor encontrado.*/
+/*La funcion parseE8 maneja la regla 8 de la gramatica. Es la ultima de las reglas y en este caso se encarga de tomar los valores
+de las expresiones y convertirlos a un string que puede ser leido por el usuario.*/
 function parseE8(expr : e8) : string {
 	var salida : string;
 	if (expr.kind == "e8_1" || expr.kind == "e8_3" || expr.kind == "e8_4"){
@@ -243,6 +175,8 @@ function parseE8(expr : e8) : string {
     return salida;
 }
 
+/*La funcion parseArray toma el objeto de un arreglo y retorna el string de cada uno de los elementos del arreglo, evaluando cada uno
+de los elementoss con la funcion parseE1.*/
 function parseArray(expr : termino) : string {
 	var aSalir = "";
 	if (expr!=null && expr.e != null && expr.e.e!=null){
@@ -258,37 +192,11 @@ function parseArray(expr : termino) : string {
     return aSalir;
 }
 
-/*La funcion parseTermino analiza un arreglo y verifica un arbol por cada una de las posiciones del arreglo, luego crea el string
-que representa al arreglo en su totalidad. Tambien se crea un arreglo con la evaluacion de cada una de las posiciones y los tipos.*/
-function parseTermino(expr : termino) : string {
-    var initNode = parseE1(expr.e.e);
-    var aSalir = initNode;
-    if (expr.b != undefined){
-    	for (var i = 0; i < expr.b.length; i++) {
-            var n = parseE1(expr.b[i].e.e);
-            aSalir = aSalir + ","+n;
-        }
-    }
-    aSalir = "["+aSalir+"]";
-    return aSalir;
-}
-
-/*La funcion validateAndEvaluate visita el AST obtenido por medio del parser para realizar la validacion y evaluacion de las expresiones introducidas
-en el lenguaje. Se visita el arbol de manera similar a la funcion parsing, pero se realizan cambios para considerar los tipos
-de los terminos al conseguirlos en la funcion parseE8. Se genera un arbol que toma como nodo, lo obtenido en la evaluacion de las 
-funciones, para conseguir la evaluacion de la expresion, se llama a una funcion del arbol llamada getResult.
-Ademas en caso de crear nuevas variables o arreglos, se agregan a la tabla de simbolos que es una de las entradas de la funcion.
-Si es una asignacion, se modifica la variable con ayuda de la estructura tabla de hash que se ha generado para la tabla de simbolos.
-Ademas se consideran los tipos de la expresion para su posterior uso en un set que sera retornado por la funcion.
-Se retorna una tupla de tipo [Array<string>,string,HashTable,Array<any>,Set<string>]. En los que se retorna:
-	errores: Array<string>
-	ASTStringForm : string
-	symbolTable : HashTable
-	evaluation : Array<any>
-	setOfTypes : Set<string>
-	Con la informacion obtenida con esta funcion se puede obtener toda la informacion relacionada a cualquier expresion que sea tipeada
-	en Stokhos, ya que, se conocen los tipos, la nueva tabla de simbolos, su string asociado, los errores que genera en caso de hacerlo y
-	la evaluacion de la expresion en los valores guardados en tabla de simbolos y otras expresiones.
+/*La funcion getString visita el AST y retorna su informacion a modo de string. Cuenta con varios modos:
+	Modo 0 : Cuando se desea imprimir el string con .ast
+	Modo 1 : Cuando se desea imprimir el string con execute o eval de la VM.
+	Modo 2 : Cuando se desea imprimir unicamente el string evaluado.
+Se atraviesa el AST de manera recursiva para convertir las operaciones y valores en string que pueden ser impresos en el REPL.
 */
 export function getString(ASTtree : any, mode : number) : string {
     var type = ASTtree.ast.start.kind; 
@@ -308,10 +216,10 @@ export function getString(ASTtree : any, mode : number) : string {
         	arbol = parseE1(valor);
         }
     }
-    if (type == "assign"){ //se debe buscar el tipo en la tabla de simbolos si no existe se lanza un error
+    if (type == "assign"){ 
     	var assignId = ASTtree.ast.start.id.value;
     	valor = ASTtree.ast.start.e.e as e1;
-    	if (ASTtree.ast.start.a != undefined){
+    	if (ASTtree.ast.start.a != undefined){ //Asignacion de una posicion de un arreglo
     		var pos = parseE1(ASTtree.ast.start.a.next.e);
     		if (mode == 0){
     		    arbol = "Def("+map(assignId) +"["+pos.toString()+"]"+","+ parseE1(valor)+")";	

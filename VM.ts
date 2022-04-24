@@ -1,4 +1,3 @@
-//import { parsing } from "./parsingFunctions.js"
 import {HashTable, Symbol} from "./hashtable.js"
 import { getString } from "./getString.js"
 import { getType , getASTType} from "./getTypes.js"
@@ -12,13 +11,22 @@ export class VM {
   parser2 = require("./parser2.js").parse;
   symbolTable = new HashTable();
   computeCycle = 0;
-  currentCycle = 0;
   constructor() {
   	this.parser = require("./parser.js").parse;
   	this.parser2 = require("./parser2.js").parse;
   }
-  /*La funcion process es el hilo principal en el que se puede utilizar el lenguaje Stokhos. 
-  NOTA: Aun no ha sido implementado.
+  /*La funcion process es el hilo principal en el que se puede utilizar el lenguaje Stokhos. Se parsea el input ingresado por el usuario,
+  se hace uso de la funcion parse, que produce los tokens mediante el lexer y luego por medio de estos tokens se parsea la combinacion de
+  tokens con ayuda de la gramatica del lenguaje. Una vez parseada la expresion se retorna un arbol sintactico abstracto o AST.
+  Este AST puede ser nulo en caso de que haya un error y la expresion no forme parte de la sintaxis de Stokhos, si no lo es se emite
+  un mensaje de error.
+  En caso de que la expresion introducida por el usuario forme parte de la gramatica de Stokhos, se procede a realizar la verificacion de
+  tipos. En casi de ser una asignacion, se considera el caso en que se asigna un arreglo, para evitar problemas con el kind durante la
+  verificacion de tipos. 
+  Al verificar los tipos con las funciones getTye y getASTType, si esta ultima retorna en la primera posicion de su tupla un string vacio,
+  entonces los tipos no son los correctos, si no es vacio, este es el tipo de la expresion o definicion que se esta introduciendo.
+  Una vez se han verificado los tipos se procede a ejecutar la definicion o asignacion o evaluar la expresion que haya introducido el
+  usuario en el REPL.
   */
   process(input : string) : string {
   	var AST = this.parse(input,1);
@@ -45,7 +53,7 @@ export class VM {
 	  }
   	catch(error){
   		if (error instanceof RangeError){
-				console.log("ERROR: Stack Overflow");
+				console.log("ERROR: Stack Overflow"); //En caso de que existan menciones circulares a la misma variable se muestra este error 
 				errores = "ERROR: Stack Overflow";
   		}
   		if (error.ast == null){
@@ -55,22 +63,27 @@ export class VM {
   	}
   	return errores;
   }
+  /*La funcion execute se encarga de ejecutar las definiciones realizadas por el usuario. Dentro de esta funcion se aumenta una vez 
+  el ciclo de computo y se utiliza la funcion getEvaluation para ejecutar las definiciones, en donde seran insertadas en la tabla de
+  simbolos y evaluadas en caso de ser necesario, dependiendo del ciclo de computo en el que se encuentre la VM.*/
   execute(AST : any){
   	this.computeCycle +=1;
-  	var execution = getEvaluation(AST,this.symbolTable,this.computeCycle,1);
+  	var execution = getEvaluation(AST,this.symbolTable,this.computeCycle);
   	console.log("ACK: "+getString(AST,1));
-  	this.symbolTable = execution[1];
-  	this.computeCycle = execution[2];
+  	this.symbolTable = execution[1]; //se actualiza la tabla de simbolos con los valores actualizados
+  	this.computeCycle = execution[2]; //se actualiza el ciclo de computo
   }
+  /*La funcion eval se encarga de evaluar las expresiones introducidas por el usuario en el REPL. Se hace uso de la funcion 
+  getEvaluation para obtener los valores necesarios de las expresiones y sus evaluaciones y en caso de que retornen un arreglo,
+  se colocan los simbolos "[]" para mostrar al usuario los valores de manera comprensible y que pueda reconocer que se trata de
+  un arreglo.*/
   eval(AST : any){
-  	var evaluate = 0;
-  	var evaluation = getEvaluation(AST,this.symbolTable,this.computeCycle,evaluate);
+  	var evaluation = getEvaluation(AST,this.symbolTable,this.computeCycle);
   	this.symbolTable = evaluation[1];
-  	this.computeCycle = evaluation[2];
-  	if (Array.isArray(evaluation[0])){
+  	this.computeCycle = evaluation[2]; //se actualiza el ciclo de computo, ya que, puede ser modificado unicamente en esta funcion eval
+  	if (Array.isArray(evaluation[0])){ //por medio de la funcion predefinida de Stokhos tick()
   		evaluation[0] = "["+evaluation[0].toString()+"]";
   	}
-  	this.currentCycle = this.computeCycle;
   	console.log("OK: "+getString(AST,1)+" ==> "+evaluation[0]);
   }
   /*La funcion lextest es el lexer del lenguaje Stokhos, se encarga de manejar la entrada introducida por el usuario y generar los
@@ -235,9 +248,8 @@ export class VM {
   	}
   	return output;
   }
-  /*La funcion ast2str toma el AST y la entrada del REPL, luego llama a la funcion parsing, que retorna un arreglo de strings con el 
-  orden inorder del arbol y luego se mapea este arreglo con una estructura map que pasa los tokens a valores reales del lenguaje y
-  finalmente con getString se retorna un string basado en el arreglo de strings que puede ser mostrado en consola.*/
+  /*La funcion ast2str toma el AST y la entrada del REPL, luego llama a la funcion getString que retorna el AST en forma de string
+  parentizado.*/
   ast2str(AST : any,input : string){
   	var stringToShow = getString(AST,0);
   	console.log("OK: ast('"+input+"') ==> "+stringToShow);
