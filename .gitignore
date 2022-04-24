@@ -31,11 +31,6 @@ package-lock.json
 dst/
 build/
 
-# scripts
-clean
-build
-run
-
 # ES Lint cache
 .eslintcache
 
