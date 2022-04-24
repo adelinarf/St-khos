@@ -12,6 +12,7 @@
     "getString.ts",
     "getTypes.ts",
     "getEvaluation.ts",
+    "mappingFunctions.ts",
     "searchType.ts",
     "changeAST.ts",
     "VM.ts",

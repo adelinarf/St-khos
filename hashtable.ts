@@ -32,7 +32,7 @@ export class HashTable {
 		return [false,new Symbol("","","","",0)];
 	}
 	/*La funcion modify modifica una variable dentro de la tabla de simbolos. Se busca la variable y se actualizan sus valores de
-	identifier, value,number, type y array (en caso de ser un arreglo).*/
+	identifier, value,number, type, array (en caso de ser un arreglo), AST y ciclo en el que fue modificada.*/
 	modify(variable : string, newVal : string,type:string,array : Array<string>, newAST: any,cycle:number) {
 		var key = this.h(variable);
 		for (var i = 0; i < this.list[key].length; i++) {
@@ -48,6 +48,7 @@ export class HashTable {
 			}
 		}
 	}
+	/*La funcion modifyArray modifica la posicion de un arreglo, actualiza su valor en el AST y el numero de ciclo en el que fue modificado.*/
 	modifyArray(variable : string, pos : number, newVal : any, neweAtPos : e1, cycle : number){
 		var key = this.h(variable);
 		for (var i = 0; i < this.list[key].length; i++) {
@@ -67,13 +68,18 @@ export class HashTable {
 		return value%100;
 	}
 }
-/*La clase Symbol representa una variable que se agrega a la tabla de simbolos representada como tabla de hash. Cuenta con un 
-identificador o el TkId de la variable, su value o forma de string y number que es la evaluacion de la expresion de la variable.
-type representa el tipo de la variable y en array se aloja el arreglo de evaluaciones en caso de que la variable sea un arreglo.*/
+/*La clase Symbol representa una variable que se agrega a la tabla de simbolos como tabla de hash. Los atributos de esta clase son:
+	identifier : Nombre de la variable
+	value      : Valor actual de la variable o rvalue
+	type       : Tipo de la variable
+	array      : Arreglo de strings con el valor de la variable
+	cycle      : Ciclo en el que fue modificada la variable
+	arrayCycle : Arreglo de numeros que indica el ciclo en el que se modificaron
+	AST        : Arbol sintactico abstracto asociado a la variable.
+*/
 export class Symbol{
 	identifier : string;
 	value : string;
-	number : any;
 	type : any;
 	array : Array<string>;
 	cycle : number;
@@ -85,12 +91,5 @@ export class Symbol{
 		this.type = type;
 		this.AST = tree;
 		this.cycle = cycle;
-	}
-	addArray(arr : Array<string>){
-		this.array = arr;
-	}
-	copy() : Symbol{
-		var symbol = new Symbol(this.identifier,this.value,this.type,this.AST,this.cycle);
-		return symbol;
 	}
 }
