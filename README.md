@@ -135,5 +135,10 @@ Se incluye en la carga de archivos el procesamiento de expresiones de Stókhos s
     formula(exp)              : Retorna el cvalue de la variable exp.
     tick()                    : Aumenta el ciclo de cómputo de la VM.
     sqrt(exp)                 : Retorna la raíz cuadrada de exp.
-    array(size,init)          : Retorna un arreglo de tamaño size, cuyos elementos se inicializan de acuerdo a init.
-    histogram(exp, nsamples, nbuckets, lowerbound,upperbound) : Retorna un arreglo que resulta de la frecuencia de los valores de exp evaluados nsamples veces y que se dividen sobre el arreglo de tamaño nbuckets+2 entre lowerbound y upperbound. Cada valor evaluado de exp se le asigna una posición del arreglo de acuerdo al lowerbound, upperbound y los rangos de valores que se consideran en cada posición del arreglo de salida. También muestra en el REPL un pequeño histograma que representa la salida.
+    array(size,init)          : Retorna un arreglo de tamaño size, cuyos elementos se inicializan de acuerdo a 
+                                init.
+    histogram(exp, nsamples, nbuckets, lowerbound,upperbound) : Retorna un arreglo que resulta de la frecuencia 
+    de los valores de exp evaluados nsamples veces y que se dividen sobre el arreglo de tamaño nbuckets+2 entre 
+    lowerbound y upperbound. Cada valor evaluado de exp se le asigna una posición del arreglo de acuerdo al lowerbound, 
+    upperbound y los rangos de valores que se consideran en cada posición del arreglo de salida. También muestra en el 
+    REPL un pequeño histograma que representa la salida.
