@@ -60,6 +60,7 @@ export class HashTable {
 			}
 		}
 	}
+	/*La funcion addToArray agrega los rvalues y de modificaciones de ciclo a una variable de tipo array.*/
 	addToArray(variable : string, value : any, currentCycle : number){
 		var key = this.h(variable);
 		for (var i = 0; i < this.list[key].length; i++) {
