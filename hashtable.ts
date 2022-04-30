@@ -33,7 +33,7 @@ export class HashTable {
 	}
 	/*La funcion modify modifica una variable dentro de la tabla de simbolos. Se busca la variable y se actualizan sus valores de
 	identifier, value,number, type, array (en caso de ser un arreglo), AST y ciclo en el que fue modificada.*/
-	modify(variable : string, newVal : string,type:string,array : Array<string>, newAST: any,cycle:number) {
+	modify(variable : string, newVal : string,type:string,array : Array<any>, newAST: any,cycle:number) {
 		var key = this.h(variable);
 		for (var i = 0; i < this.list[key].length; i++) {
 			if (this.list[key][i].identifier == variable){
@@ -59,6 +59,15 @@ export class HashTable {
 				break;
 			}
 		}
+	}
+	addToArray(variable : string, value : any, currentCycle : number){
+		var key = this.h(variable);
+		for (var i = 0; i < this.list[key].length; i++) {
+			if (this.list[key][i].identifier == variable){
+				this.list[key][i].array.push(value);
+				this.list[key][i].arrayCycle.push(currentCycle);
+			}
+		}	
 	}
 	/*La funcion h es la funcion de hash que se utiliza en esta tabla de hash para realizar el hashing de los elementos a 
 	insertar.*/

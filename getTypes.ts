@@ -190,36 +190,42 @@ function parseE8(expr : e8, tipos : Array<string>,tiposOp : Array<string>,errore
     	if (expr.kind == "terms_3"){
             var obtain = symbol.search(map(expr.value.value));
             if (expr.b == undefined){
-	            if (obtain[0]!=false){
-	            	var t = obtain[1].type;
-	            	if (expr.a != null){ //Se quiere acceder a una posicion de un arreglo.
-		        		tipos.push(t);
-		        		var valueOfPosition = evaluate(expr.a.next.e as e1);
-		                var result2 = parseE1(expr.a.next.e as e1,tipos,tiposOp,errores,"assignArrayPos");
-		                if (result2[0].includes("float")){ //Como es una posicion de un arreglo debe ser un entero
-		                	errores.push("ERROR: La posicion del arreglo "+map(expr.value.value)+" debe ser un numero entero.")
-		                } //Si la posicion es mas grande que el tamano del arreglo o menor a 0 se registra un error.
-		                if (valueOfPosition>=obtain[1].array.length || valueOfPosition < 0){
-		                	errores.push("ERROR: La posicion "+valueOfPosition.toString()+" no se encuentra dentro del arreglo.");
-		                }
-		                tipos = result2[0];
-						tiposOp = result2[1];
-						errores = result2[2];
-						hasLType = 1;
-		            }
-		            if (expr.a == null){
-		            	tipos.push(t);
-		            	if (obtain[1].AST.ast.start.kind == "array"){
-			            	hasLType = 0;
-			            }
-			            else{
-			            	hasLType = 1; //Si no es un arreglo pero es una variable
-			            }
-		            }
-	            }
-	            else{
-	            	errores.push("ERROR: La variable "+map(expr.value.value)+" no esta definida.");
-	            }
+				var OPTIONS = typeOfInput.split(",");
+				if (OPTIONS[0]=="array" && OPTIONS[1]==map(expr.value.value)){
+					hasLType = 1;
+				}
+				else{
+					if (obtain[0]!=false){
+						var t = obtain[1].type;
+						if (expr.a != null){ //Se quiere acceder a una posicion de un arreglo.
+							tipos.push(t);
+							var valueOfPosition = evaluate(expr.a.next.e as e1);
+							var result2 = parseE1(expr.a.next.e as e1,tipos,tiposOp,errores,"assignArrayPos");
+							if (result2[0].includes("float")){ //Como es una posicion de un arreglo debe ser un entero
+								errores.push("ERROR: La posicion del arreglo "+map(expr.value.value)+" debe ser un numero entero.")
+							} //Si la posicion es mas grande que el tamano del arreglo o menor a 0 se registra un error.
+							if (valueOfPosition>=obtain[1].array.length || valueOfPosition < 0){
+								errores.push("ERROR: La posicion "+valueOfPosition.toString()+" no se encuentra dentro del arreglo.");
+							}
+							tipos = result2[0];
+							tiposOp = result2[1];
+							errores = result2[2];
+							hasLType = 1;
+						}
+						if (expr.a == null){
+							tipos.push(t);
+							if (obtain[1].AST.ast.start.kind == "array"){
+								hasLType = 0;
+							}
+							else{
+								hasLType = 1; //Si no es un arreglo pero es una variable
+							}
+						}
+					}
+					else{
+						errores.push("ERROR: La variable "+map(expr.value.value)+" no esta definida.");
+					}
+				}
             }
             else{
                 var functionName = map(expr.value.value);
@@ -816,7 +822,7 @@ export function getType(ASTtree : any, symbolTable : HashTable, mode : number) :
         var result = symbolTable.search(map(arrayName));
     	if (result[0]==false && mode==0){
     		if (ASTtree.ast.start.e.e != null){
-    			[tipos,tiposOp,errores] = parseE1(valor2.e,tipos,tiposOp,errores,type);
+    			[tipos,tiposOp,errores] = parseE1(valor2.e,tipos,tiposOp,errores,type+","+map(arrayName));
     			if (tipos.includes("array") == false){
     				errores.push("ERROR: El valor asignado al arreglo no es de tipo arreglo.");
     			}

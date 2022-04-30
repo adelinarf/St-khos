@@ -32,34 +32,36 @@ export class VM {
   	var AST = this.parse(input,1);
   	var errores = "";
   	try{
-  		var typeOfEntry = AST.ast.start.kind;
-  		if (AST.ast.start.kind == "assign"){
-  			typeOfEntry = searchType(AST,this.symbolTable);
-  		}
-	  	var types = getASTType(getType(AST,this.symbolTable,0),typeOfEntry);
-	  	if (types[0]!=""){
-	  		var typeOfInput = AST.ast.start.kind;
-	  		if (typeOfInput == "declaration" || typeOfInput == "array" || typeOfInput == "assign"){
-	  			this.execute(AST,input);
-	  		}
-	  		else{
-	  			this.eval(AST,input);
-	  		}
-	  	}
-	  	else{
-	  		console.log(types[1][0]);
-	  		errores = types[1][0];
-	  	}
-	  }
-  	catch(error){
+		var typeOfEntry = AST.ast.start.kind;
+		if (AST.ast.start.kind == "assign"){
+			typeOfEntry = searchType(AST,this.symbolTable);
+		}
+		var types = getASTType(getType(AST,this.symbolTable,0),typeOfEntry);
+		if (types[0]!=""){
+			var typeOfInput = AST.ast.start.kind;
+			if (typeOfInput == "declaration" || typeOfInput == "array" || typeOfInput == "assign"){
+				this.execute(AST,input);
+			}
+			else{
+				this.eval(AST,input);
+			}
+		}
+		else{
+			console.log(types[1][0]);
+			errores = types[1][0];
+		}
+	}
+	catch(error){
   		if (error instanceof RangeError){
-				console.log("ERROR: Stack Overflow"); //En caso de que existan menciones circulares a la misma variable se muestra este error 
-				errores = "ERROR: Stack Overflow";
+			console.log("ERROR: Stack Overflow"); //En caso de que existan menciones circulares a la misma variable se muestra este error 
+			errores = "ERROR: Stack Overflow";
   		}
-  		if (error.ast == null){
-  			console.log("ERROR: La expresion '"+input+"' no forma parte de la sintaxis de Stokhos.");
-  			errores = "ERROR: La expresion '"+input+"' no forma parte de la sintaxis de Stokhos.";
-  		}
+  		else{
+			if (error.ast == null){
+				console.log("ERROR: La expresion '"+input+"' no forma parte de la sintaxis de Stokhos.");
+				errores = "ERROR: La expresion '"+input+"' no forma parte de la sintaxis de Stokhos.";
+			}	
+		}
   	}
   	return errores;
   }

@@ -6,13 +6,13 @@ import {map, mapping} from "./mappingFunctions.js"
 
 /*La funcion search se encarga de buscar los hijos a derecha del arbol que estamos generando. Se alojan los resultados de las evaluaciones
 en un arreglo llamado string que retorna la funcion.*/
-function search(array : Array<any>,nombre : Function) : Array<any> {
+function search(array : Array<any>,nombre : Function,s:string) : Array<any> {
 	var string = [];
     if (array != undefined && array.length>0){
         for (var i = 0; i < array.length; i++) {
             var entrada = array[i].next;
             string.push(array[i].op.kind);
-            string.push(nombre(entrada));
+            string.push(nombre(entrada,s));
         }
     }
     return string;
@@ -81,9 +81,9 @@ En cada funcion parseEi se llama a la funcion parseEi+1 de manera recursiva y se
 para que puedan realizarse las operaciones dependiendo de su precedencia.*/
 
 /*La funcion parseE1 maneja la regla 1 de la gramatica.*/
-function parseE1(expr : e1) : any {
-	var leftVar : any = parseE2(expr.e);
-	var now : Array<any> = search(expr.a,parseE2);
+function parseE1(expr : e1,array:string) : any {
+	var leftVar : any = parseE2(expr.e,array);
+	var now : Array<any> = search(expr.a,parseE2,array);
     var salida : any;
 	if (now.length != 0){
 		salida = operateBinary(leftVar,now);
@@ -95,9 +95,9 @@ function parseE1(expr : e1) : any {
 }
 
 /*La funcion parseE2 maneja la regla 2 de la gramatica.*/
-function parseE2(expr : e2) : any {
-	var leftVar : any = parseE3(expr.e);
-	var now : Array<any> = search(expr.a,parseE3);
+function parseE2(expr : e2,array:string) : any {
+	var leftVar : any = parseE3(expr.e,array);
+	var now : Array<any> = search(expr.a,parseE3,array);
     var salida : any;
 	if (now.length != 0){
 		salida = operateBinary(leftVar,now);
@@ -109,9 +109,9 @@ function parseE2(expr : e2) : any {
 }
 
 /*La funcion parseE3 maneja la regla 3 de la gramatica.*/
-function parseE3(expr : e3) : any {
-	var leftVar : any = parseE4(expr.e);
-	var now : Array<any> = search(expr.a,parseE4);
+function parseE3(expr : e3,array:string) : any {
+	var leftVar : any = parseE4(expr.e,array);
+	var now : Array<any> = search(expr.a,parseE4,array);
     var salida : any;
 	if (now.length != 0){
 		salida = operateBinary(leftVar,now);
@@ -123,9 +123,9 @@ function parseE3(expr : e3) : any {
 }
 
 /*La funcion parseE4 maneja la regla 4 de la gramatica.*/
-function parseE4(expr : e4) : any {
-	var leftVar : any = parseE5(expr.e);
-	var now : Array<any> = search(expr.a,parseE5);
+function parseE4(expr : e4,array:string) : any {
+	var leftVar : any = parseE5(expr.e,array);
+	var now : Array<any> = search(expr.a,parseE5,array);
     var salida : any;
 	if (now.length != 0){
 		salida = operateBinary(leftVar,now);
@@ -137,9 +137,9 @@ function parseE4(expr : e4) : any {
 }
 
 /*La funcion parseE5 maneja la regla 5 de la gramatica.*/
-function parseE5(expr : e5) : any {
-	var leftVar : any = parseE6(expr.e);
-	var now : Array<any> = search(expr.a,parseE6);
+function parseE5(expr : e5,array:string) : any {
+	var leftVar : any = parseE6(expr.e,array);
+	var now : Array<any> = search(expr.a,parseE6,array);
     var salida : any;
 	if (now.length != 0){
 		salida = operateBinary(leftVar,now);
@@ -172,8 +172,8 @@ function operateUnary(leftOp : any , operations : Array<any>) : any {
 
 /*La funcion parseE6 maneja la regla 6 de la gramatica. Esta regla considera unicamente los operadores unarios, por lo que no se
 hace un llamado a la funcion search, ya que, no existe este atributo.*/
-function parseE6(expr : e6) : any {
-	var leftVar : any = parseE7(expr.e);
+function parseE6(expr : e6,array:string) : any {
+	var leftVar : any = parseE7(expr.e,array);
 	var operations = [];
     if (expr.uop != undefined && expr.uop.length > 0){
     	operations.push(expr.uop[0].kind);
@@ -192,9 +192,9 @@ function parseE6(expr : e6) : any {
 }
 
 /*La funcion parseE7 maneja la regla 7 de la gramatica*/
-function parseE7(expr : e7) : any {
-	var leftVar = parseE8(expr.e);
-	var now : Array<any> = search(expr.a,parseE8);
+function parseE7(expr : e7,array:string) : any {
+	var leftVar = parseE8(expr.e,array);
+	var now : Array<any> = search(expr.a,parseE8,array);
 	var salida : any;
 	if (now.length != 0){
 		salida = operateBinary(leftVar,now);
@@ -207,31 +207,31 @@ function parseE7(expr : e7) : any {
 
 /*La funcion parseE8 maneja la regla 8 de la gramatica. Es la ultima de las reglas y por esto, se encarga de manejar las llamadas a 
 variables y las busquedas de valores dentro de la tabla de simbolos en caso de ser necesario.*/
-function parseE8(expr : e8) : any {
+function parseE8(expr : e8, array : string) : any {
 	var salida : any;
 	if (expr.kind == "e8_1" || expr.kind == "e8_3"){ 
-        salida = parseE1(expr.value.e as e1);
+        salida = parseE1(expr.value.e as e1,"");
     }
     if (expr.kind == "e8_4"){
-    	salida = parseE1(expr.value.e as e1);
+    	salida = parseE1(expr.value.e as e1,"");
     }
     if (expr.kind == "e8_2"){ //esta salida es la de un arreglo
-    	salida = parseArray(expr.value);
+    	salida = parseArray(expr.value,"");
     }
     if (expr.kind != "e8_1" && expr.kind != "e8_2" && expr.kind != "e8_3" && expr.kind != "e8_4"){
     	if (expr.kind == "terms_3"){
             if (expr.a != undefined){ //esta salida es la posicion del arreglo
-            	salida = parseE1(expr.a.next.e as e1);
+            	salida = parseE1(expr.a.next.e as e1,"");
                 var getSearch = symbol.search(map(expr.value.value));
                 if (getSearch[0]!=false){
-                	if (computedCyles != getSearch[1].cycle){ //Si el ciclo de computo actual es diferente al de la variable
+                	if (computedCyles != getSearch[1].arrayCycle[salida]){ //Si el ciclo de computo actual es diferente al de la variable
         				var f = getSearch[1].AST.ast.start.e.e.e.e.e.e.e.e.e;
                 		var pos = salida;
                 		if (salida == 0 && f.value.e.e.e.e.e.e.e.e.e.kind == "e8_4"){
-                			salida = parseE1(f.value.e.e);
+                			salida = parseE1(f.value.e.e,"");
                 		}
                 		if (salida != 0 && f.value.b[salida-1].e.e.e.e.e.e.e.e.e.kind == "e8_4"){
-                			salida = parseE1(f.value.b[salida-1].e.e);
+                			salida = parseE1(f.value.b[salida-1].e.e,"");
                 		}
                 		else{ //Se actualiza unicamente si tiene comillas simples, si no se busca el valor rvalue guardado.
                 			salida = getSearch[1].array[salida];
@@ -259,7 +259,7 @@ function parseE8(expr : e8) : any {
             		var t = getV[1].AST.ast.start.kind;
             		if (t == "declaration" || t == "assign"){ //Si el ciclo de computo actual es diferente al de la variable
             			if (computedCyles != getV[1].cycle && getV[1].AST.ast.start.e.e.e.e.e.e.e.e.e.kind == "e8_4"){  
-					  		salida = parseE1(getV[1].AST.ast.start.e.e); //Y la variable tiene comillas simples se actualiza
+					  		salida = parseE1(getV[1].AST.ast.start.e.e,""); //Y la variable tiene comillas simples se actualiza
         					getV[1].value = salida;
         					getV[1].cycle = computedCyles;
 					  	}
@@ -269,7 +269,7 @@ function parseE8(expr : e8) : any {
             		}
             		if (t == "array"){
             			if (computedCyles != getV[1].cycle){  //Si el ciclo de computo actual es diferente al de la variable, se evalua
-					  		salida = parseE1(getV[1].AST.ast.start.e.e);
+					  		salida = parseE1(getV[1].AST.ast.start.e.e,"");
             				getV[1].array = salida;
         					getV[1].cycle = computedCyles;
 					  	}
@@ -289,6 +289,9 @@ function parseE8(expr : e8) : any {
             }
         }
     }
+    if (array!=""){
+		symbol.addToArray(array,salida,computedCyles);
+	}
     return salida;
 }
 /*La funcion parseFunctionWithArguments llama a las funciones que requieren argumentos y retorna los valores resultantes.*/
@@ -369,28 +372,28 @@ function tickFun() : number {
 }
 /*La funcion ln retorna el logaritmo natural de una expresion.*/
 function lnFun(expr : termino) : number {
-	var f = parseE1(expr.e.e);
+	var f = parseE1(expr.e.e,"");
 	return Math.log(f);
 }
 /*La funcion sqrt retorna la raiz cuadrada de una expresion.*/
 function sqrtFun(expr : termino) : number{
-	var f = parseE1(expr.e.e);
+	var f = parseE1(expr.e.e,"");
 	return Math.sqrt(f);
 }
 /*La funcion exp retorna el valor de la constante e elevada a una expresion.*/
 function expFun(expr : termino) : number {
-	var f = parseE1(expr.e.e);
+	var f = parseE1(expr.e.e,"");
 	var e = Math.E;
 	return Math.pow(e,f);
 }
 /*La funcion sin retorna el seno de una expresion.*/
 function sinFun(expr : termino) : number {
-	var f = parseE1(expr.e.e);
+	var f = parseE1(expr.e.e,"");
 	return Math.sin(f);
 }
 /*La funcion cos retorna el coseno de una expresion.*/
 function cosFun(expr : termino) : number {
-	var f = parseE1(expr.e.e);
+	var f = parseE1(expr.e.e,"");
 	return Math.cos(f);
 }
 /*La funcion formula retorna el cvalue de una expresion.*/
@@ -427,10 +430,10 @@ function formulaFun(expr : termino) : any {
 /*La funcion arrayFun genera un arreglo nuevo a partir de la evaluacion de la entrada init y retorna este arreglo seguido de 
 un objeto del AST y el string "arrayFun".*/
 function arrayFun(expr : termino) : Array<any> {
-	var size = parseE1(expr.e.e);
+	var size = parseE1(expr.e.e,"");
 	var newArray = [];
 	for (var i = 0; i < size; i++) {
-		newArray.push(parseE1(expr.b[0].e.e));
+		newArray.push(parseE1(expr.b[0].e.e,""));
 	}
 	newArray.push(expr.b[0].e.e,"arrayFun");
 	return newArray;
@@ -441,15 +444,15 @@ donde se registra la frecuencia de cada uno de los valores dentro de los rangos 
 de un AST que luego se unira al AST que llama a la funcion y se imprime en la consola el histograma que genera el arreglo de tamano
 nbuckets+2.*/
 function histogramFun(expr : termino) : Array<any> {
-	var nsamples = parseE1(expr.b[0].e.e);
-	var nbuckets = parseE1(expr.b[1].e.e);
-	var lowerBound = parseE1(expr.b[2].e.e);
-	var upperBound = parseE1(expr.b[3].e.e);
+	var nsamples = parseE1(expr.b[0].e.e,"");
+	var nbuckets = parseE1(expr.b[1].e.e,"");
+	var lowerBound = parseE1(expr.b[2].e.e,"");
+	var upperBound = parseE1(expr.b[3].e.e,"");
 	var count = 0;
 	var results = [...Array(nbuckets+2)].map(x => 0);
 	var values = [...Array(nbuckets+2)].map(x => 0);
 	while (count < nsamples){
-		var exp = parseE1(expr.e.e);
+		var exp = parseE1(expr.e.e,"");
 		if (exp <= lowerBound){
 			results[0]+=1;
 			values.push(exp);
@@ -524,12 +527,12 @@ function getBars(val : number) : string {
 
 /*La funcion if retorna la segunda entrada si la condicion se cumple, si no se cumple retorna la tercera entrada.*/
 function ifFun(expr : termino) : any {
-	var resultCondition = parseE1(expr.e.e);
+	var resultCondition = parseE1(expr.e.e,"");
     if (resultCondition == true){
-    	return parseE1(expr.b[0].e.e); //se evalua la segunda entrada de la funcion
+    	return parseE1(expr.b[0].e.e,""); //se evalua la segunda entrada de la funcion
     }
     else{
-    	return parseE1(expr.b[1].e.e); //se evalua la tercera entrada de la funcion
+    	return parseE1(expr.b[1].e.e,""); //se evalua la tercera entrada de la funcion
     }
 }
 
@@ -537,7 +540,7 @@ function ifFun(expr : termino) : any {
 getTypeOfExpression para conseguir cada uno de los tipos.*/
 function typeFun(expr : termino) : string {
 	var output : string;
-	var resultOfEvaluating = parseE1(expr.e.e);
+	var resultOfEvaluating = parseE1(expr.e.e,"");
 	if (Array.isArray(resultOfEvaluating)){
 		output = getTypeOfArray(resultOfEvaluating);
 		//revisar el tipo de cada variable del arreglo
@@ -594,7 +597,7 @@ function getTypeOfExpression(resultOfEvaluating : any) : string {
 getTypeOfArray, si no lo es se busca su tipo con la funcion getTypeOfExpression.*/
 function ltypeFun(expr : termino) : any {
 	var output : string;
-	var resultOfEvaluating = parseE1(expr.e.e);
+	var resultOfEvaluating = parseE1(expr.e.e,"");
 	if (Array.isArray(resultOfEvaluating)){
 		output = getTypeOfArray(resultOfEvaluating);
 	}
@@ -606,19 +609,19 @@ function ltypeFun(expr : termino) : any {
 
 /*La funcion floor retorna el valor de la funcion piso para una entrada.*/
 function floorFun(expr : termino) : number {
-	var f = parseE1(expr.e.e);
+	var f = parseE1(expr.e.e,"");
 	return Math.floor(f);
 }
 
 /*La funcion length retorna el tamano de un arreglo.*/
 function lengthFun(expr : termino) : number {
-	var array = parseE1(expr.e.e);
+	var array = parseE1(expr.e.e,"");
 	return (array.length);
 }
 
 /*La funcion sum suma todos los valores de una arreglo y retorna esta suma.*/
 function sumFun(expr : termino) : number {
-	var array : Array<number> = parseE1(expr.e.e);
+	var array : Array<number> = parseE1(expr.e.e,"");
 	var s = array.reduce((x, a) => x + a, 0);
 	return s;
 }
@@ -657,14 +660,14 @@ function nowFun() : number {
 
 /*La funcion parseArray toma un subarbol del AST y lo evalua para obtener los valores de cada una de las posiciones de un arreglo.
 Retorna un arreglo con las evaluaciones realizadas.*/
-function parseArray(expr : termino) : Array<any> {
+function parseArray(expr : termino,array:string) : Array<any> {
 	var aSalir : Array<any>;
 	if (expr!=null && expr.e != null && expr.e.e!=null){
-	    var initNode = parseE1(expr.e.e);
+	    var initNode = parseE1(expr.e.e,array);
 	    aSalir = [initNode];
 	    if (expr.b != undefined){
 	    	for (var i = 0; i < expr.b.length; i++) {
-	            var n = parseE1(expr.b[i].e.e);
+	            var n = parseE1(expr.b[i].e.e,array);
 	            aSalir.push(n);
 	        }
 	    }
@@ -678,7 +681,7 @@ function parseArray(expr : termino) : Array<any> {
 /*La funcion evaluate es una funcion ideal para poder realizar evaluaciones en otros modulos del programa sin necesidad de utilizar
 la funcion getEvaluation.*/
 export function evaluate(expr : e1) : any{
-	return parseE1(expr);
+	return parseE1(expr,"");
 }
 
 /*La funcion getEvaluation toma el AST, la tabla de simbolos y el ciclo de computo y retorna el valor de la variable definida o la 
@@ -717,7 +720,7 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         valor = ASTtree.ast.start.e.e as e1;
         var declarationType = ASTtree.ast.start.type.kind;
         var declarationID = ASTtree.ast.start.id.value;
-        arbol = parseE1(valor);
+        arbol = parseE1(valor,"");
         var t = getASTType(getType(ASTtree,symbolTable,0),type);
         symbolTable.insert(new Symbol(map(declarationID),arbol,t[0],ASTtree,computedCyles));
         //guardar variable
@@ -726,15 +729,15 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
     	var assignId = ASTtree.ast.start.id.value;
     	valor = ASTtree.ast.start.e.e as e1;
     	if (ASTtree.ast.start.a != undefined){ //Se esta asignando una posicion de un arreglo
-    		arbol = parseE1(valor); //valor a cambiar
-    		var pos = parseE1(ASTtree.ast.start.a.next.e);  //valor de la posicion
+    		arbol = parseE1(valor,""); //valor a cambiar
+    		var pos = parseE1(ASTtree.ast.start.a.next.e,"");  //valor de la posicion
     		var obtain = symbol.search(map(assignId));
     		if (obtain[0]!=false){
     			symbolTable.modifyArray(map(assignId),pos,arbol,valor,computedCyles);
     		}
     	}
     	else{
-    		arbol = parseE1(valor);  //guardar variable
+    		arbol = parseE1(valor,"");  //guardar variable
     		var getS = symbol.search(map(assignId));
     		if (getS[0]!=false){
     		    if (Array.isArray(arbol)){
@@ -766,7 +769,11 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         var arrayType = ASTtree.ast.start.type.kind;  //guardar arreglo
         var arrayName = ASTtree.ast.start.id.value;
         if (ASTtree.ast.start.e != null){
-        	arbol = parseE1(valor2);
+			var insertVar = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCyles);
+        	insertVar.array = [];
+        	insertVar.arrayCycle = [];
+        	symbolTable.insert(insertVar);
+        	arbol = parseE1(valor2,map(arrayName));
         	if (arbol[arbol.length-1] == "histogram"){
         		ASTtree.ast.start.e.e.e.e.e.e.e.e.e = arbol[arbol.length-2];
         		var arbolMod = arbol.slice(0,arbol.length-2);
@@ -781,17 +788,18 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         		}
         		arbol = arbolM;
         	}
-        	var symbols = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCyles);
-        	symbols.array = arbol;
-        	symbols.arrayCycle = [...Array(arbol.length)].map(x => computedCyles);
-        	symbolTable.insert(symbols);
+        	//var symbols = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCyles);
+        	//symbols.array = arbol;
+        	//symbols.arrayCycle = [...Array(arbol.length)].map(x => computedCyles);
+        	//symbolTable.insert(symbols);
+        	symbolTable.modify(map(arrayName),"",map(arrayType),arbol,ASTtree,computedCyles);
         }
         else{
         	arbol = [];
         } 
     }
     if (type == "exp"){
-    	arbol = parseE1(valor);
+    	arbol = parseE1(valor,"");
     	if (Array.isArray(arbol)){
     		if (arbol[arbol.length-1]=="arrayFun" || arbol[arbol.length-1] == "histogram"){
     			var arbolModified = arbol.slice(0,arbol.length-2);
