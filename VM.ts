@@ -40,10 +40,10 @@ export class VM {
 	  	if (types[0]!=""){
 	  		var typeOfInput = AST.ast.start.kind;
 	  		if (typeOfInput == "declaration" || typeOfInput == "array" || typeOfInput == "assign"){
-	  			this.execute(AST);
+	  			this.execute(AST,input);
 	  		}
 	  		else{
-	  			this.eval(AST);
+	  			this.eval(AST,input);
 	  		}
 	  	}
 	  	else{
@@ -66,10 +66,10 @@ export class VM {
   /*La funcion execute se encarga de ejecutar las definiciones realizadas por el usuario. Dentro de esta funcion se aumenta una vez 
   el ciclo de computo y se utiliza la funcion getEvaluation para ejecutar las definiciones, en donde seran insertadas en la tabla de
   simbolos y evaluadas en caso de ser necesario, dependiendo del ciclo de computo en el que se encuentre la VM.*/
-  execute(AST : any){
+  execute(AST : any, input : string){
   	this.computeCycle +=1;
   	var execution = getEvaluation(AST,this.symbolTable,this.computeCycle);
-  	console.log("ACK: "+getString(AST,1));
+  	console.log("ACK: "+input);
   	this.symbolTable = execution[1]; //se actualiza la tabla de simbolos con los valores actualizados
   	this.computeCycle = execution[2]; //se actualiza el ciclo de computo
   }
@@ -77,14 +77,14 @@ export class VM {
   getEvaluation para obtener los valores necesarios de las expresiones y sus evaluaciones y en caso de que retornen un arreglo,
   se colocan los simbolos "[]" para mostrar al usuario los valores de manera comprensible y que pueda reconocer que se trata de
   un arreglo.*/
-  eval(AST : any){
+  eval(AST : any, input : string){
   	var evaluation = getEvaluation(AST,this.symbolTable,this.computeCycle);
   	this.symbolTable = evaluation[1];
   	this.computeCycle = evaluation[2]; //se actualiza el ciclo de computo, ya que, puede ser modificado unicamente en esta funcion eval
   	if (Array.isArray(evaluation[0])){ //por medio de la funcion predefinida de Stokhos tick()
   		evaluation[0] = "["+evaluation[0].toString()+"]";
   	}
-  	console.log("OK: "+getString(AST,1)+" ==> "+evaluation[0]);
+  	console.log("OK: "+input+" ==> "+evaluation[0]);
   }
   /*La funcion lextest es el lexer del lenguaje Stokhos, se encarga de manejar la entrada introducida por el usuario y generar los
   tokens con los que trabajara el parser luego. Tiene varias funcionalidad, el numero de entrada number puede ser 0, en caso de llamar
