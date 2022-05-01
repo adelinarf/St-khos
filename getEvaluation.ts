@@ -273,8 +273,6 @@ function parseE8(expr : e8, array : string) : any {
 							getV[1].cycle = computedCycles;
 					  	}
 					  	else{
-							console.log(map(expr.value.value));
-							console.log(getV[1].value);
 					  		salida = getV[1].value; //Si no tiene comillas simples, se toma su rvalue alojado en la tabla de simbolos.
 					  	}
             		}
