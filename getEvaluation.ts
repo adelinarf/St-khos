@@ -210,37 +210,46 @@ variables y las busquedas de valores dentro de la tabla de simbolos en caso de s
 function parseE8(expr : e8, array : string) : any {
 	var salida : any;
 	if (expr.kind == "e8_1" || expr.kind == "e8_3"){ 
-        salida = parseE1(expr.value.e as e1,"");
+        salida = parseE1(expr.value.e as e1,array);
     }
     if (expr.kind == "e8_4"){
-    	salida = parseE1(expr.value.e as e1,"");
+    	salida = parseE1(expr.value.e as e1,"quotes");
     }
     if (expr.kind == "e8_2"){ //esta salida es la de un arreglo
-    	salida = parseArray(expr.value,"");
+    	salida = parseArray(expr.value,array);
     }
     if (expr.kind != "e8_1" && expr.kind != "e8_2" && expr.kind != "e8_3" && expr.kind != "e8_4"){
     	if (expr.kind == "terms_3"){
             if (expr.a != undefined){ //esta salida es la posicion del arreglo
-            	salida = parseE1(expr.a.next.e as e1,"");
+            	salida = parseE1(expr.a.next.e as e1,array);
                 var getSearch = symbol.search(map(expr.value.value));
                 if (getSearch[0]!=false){
-                	if (computedCyles != getSearch[1].arrayCycle[salida]){ //Si el ciclo de computo actual es diferente al de la variable
+                	if (computedCycles != getSearch[1].arrayCycle[salida]){ //Si el ciclo de computo actual es diferente al de la variable
         				var f = getSearch[1].AST.ast.start.e.e.e.e.e.e.e.e.e;
                 		var pos = salida;
                 		if (salida == 0 && f.value.e.e.e.e.e.e.e.e.e.kind == "e8_4"){
-                			salida = parseE1(f.value.e.e,"");
+                			salida = parseE1(f.value.e.e,array);
                 		}
                 		if (salida != 0 && f.value.b[salida-1].e.e.e.e.e.e.e.e.e.kind == "e8_4"){
-                			salida = parseE1(f.value.b[salida-1].e.e,"");
+                			salida = parseE1(f.value.b[salida-1].e.e,array);
                 		}
                 		else{ //Se actualiza unicamente si tiene comillas simples, si no se busca el valor rvalue guardado.
                 			salida = getSearch[1].array[salida];
                 		}
                 		getSearch[1].array[pos] = salida; 
-    					getSearch[1].arrayCycle[pos] = computedCyles;
+    					getSearch[1].arrayCycle[pos] = computedCycles;
 				  	}
 				  	else{
-				  		salida = getSearch[1].array[salida];
+						var positions = getSearch[1].AST.ast.start.e.e.e.e.e.e.e.e.e;
+						if (salida == 0 && positions.value.e.e.e.e.e.e.e.e.e.kind == "e8_4"){
+							salida = parseE1(positions.value.e.e,array);
+						}
+						if (salida != 0 && positions.value.b[salida-1].e.e.e.e.e.e.e.e.e.kind == "e8_4"){
+							salida = parseE1(positions.value.b[salida-1].e.e,array);
+						}		
+						else{
+							salida = getSearch[1].array[salida];
+						}
 				  	}
                 }
             }
@@ -258,20 +267,22 @@ function parseE8(expr : e8, array : string) : any {
             	if (getV[0]!=false){
             		var t = getV[1].AST.ast.start.kind;
             		if (t == "declaration" || t == "assign"){ //Si el ciclo de computo actual es diferente al de la variable
-            			if (computedCyles != getV[1].cycle && getV[1].AST.ast.start.e.e.e.e.e.e.e.e.e.kind == "e8_4"){  
-					  		salida = parseE1(getV[1].AST.ast.start.e.e,""); //Y la variable tiene comillas simples se actualiza
-        					getV[1].value = salida;
-        					getV[1].cycle = computedCyles;
+            			if ((computedCycles != getV[1].cycle && array == "quotes") || (getV[1].AST.ast.start.e.e.e.e.e.e.e.e.e.kind == "e8_4" && computedCycles == getV[1].cycle)){  
+							salida = parseE1(getV[1].AST.ast.start.e.e,array); //Y la variable tiene comillas simples se actualiza
+							getV[1].value = salida;
+							getV[1].cycle = computedCycles;
 					  	}
 					  	else{
+							console.log(map(expr.value.value));
+							console.log(getV[1].value);
 					  		salida = getV[1].value; //Si no tiene comillas simples, se toma su rvalue alojado en la tabla de simbolos.
 					  	}
             		}
             		if (t == "array"){
-            			if (computedCyles != getV[1].cycle){  //Si el ciclo de computo actual es diferente al de la variable, se evalua
-					  		salida = parseE1(getV[1].AST.ast.start.e.e,"");
+            			if (computedCycles != getV[1].cycle){  //Si el ciclo de computo actual es diferente al de la variable, se evalua
+					  		salida = parseE1(getV[1].AST.ast.start.e.e,array);
             				getV[1].array = salida;
-        					getV[1].cycle = computedCyles;
+        					getV[1].cycle = computedCycles;
 					  	}
 					  	else{
 					  		salida = getV[1].array;
@@ -290,7 +301,7 @@ function parseE8(expr : e8, array : string) : any {
         }
     }
     if (array!=""){
-		symbol.addToArray(array,salida,computedCyles);
+		symbol.addToArray(array,salida,computedCycles);
 	}
     return salida;
 }
@@ -367,8 +378,8 @@ function parseFunctionEmptyArguments(name : string) : any {
 
 /*La funcion tick aumenta el ciclo de computo de la VM.*/
 function tickFun() : number {
-	computedCyles += 1;
-	return computedCyles;
+	computedCycles += 1;
+	return computedCycles;
 }
 /*La funcion ln retorna el logaritmo natural de una expresion.*/
 function lnFun(expr : termino) : number {
@@ -708,12 +719,12 @@ En caso de ser una expresion, se evalua con las funciones de este modulo y si es
 ultimas posiciones del arreglo, que contienen informacion irrelevante para la impresion del arreglo como string en la consola.
 */
 var symbol : HashTable;
-var computedCyles : number;
+var computedCycles : number;
 
 export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycle : number) : [any,HashTable,number] {
     var type = ASTtree.ast.start.kind; 
     symbol = symbolTable;
-    computedCyles = computeCycle;
+    computedCycles = computeCycle;
     let valor = ASTtree.ast.start.e as e1;
     var arbol : any;
     if (type == "declaration"){
@@ -722,7 +733,7 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         var declarationID = ASTtree.ast.start.id.value;
         arbol = parseE1(valor,"");
         var t = getASTType(getType(ASTtree,symbolTable,0),type);
-        symbolTable.insert(new Symbol(map(declarationID),arbol,t[0],ASTtree,computedCyles));
+        symbolTable.insert(new Symbol(map(declarationID),arbol,t[0],ASTtree,computedCycles));
         //guardar variable
     }
     if (type == "assign"){ //se debe buscar el tipo en la tabla de simbolos si no existe se lanza un error
@@ -733,7 +744,7 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
     		var pos = parseE1(ASTtree.ast.start.a.next.e,"");  //valor de la posicion
     		var obtain = symbol.search(map(assignId));
     		if (obtain[0]!=false){
-    			symbolTable.modifyArray(map(assignId),pos,arbol,valor,computedCyles);
+    			symbolTable.modifyArray(map(assignId),pos,arbol,valor,computedCycles);
     		}
     	}
     	else{
@@ -756,10 +767,10 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
 		        		}
 		        		arbol = arbolM1;
 		        	}
-		        	symbolTable.modify(map(assignId),"",getS[1].type,arbol,originalAST,computedCyles);
+		        	symbolTable.modify(map(assignId),"",getS[1].type,arbol,originalAST,computedCycles);
 	    		}
 	    		else{
-	    			symbolTable.modify(map(assignId),arbol,getS[1].type,[],ASTtree,computedCyles);
+	    			symbolTable.modify(map(assignId),arbol,getS[1].type,[],ASTtree,computedCycles);
 	    		}	
     		}
     	}
@@ -769,7 +780,7 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         var arrayType = ASTtree.ast.start.type.kind;  //guardar arreglo
         var arrayName = ASTtree.ast.start.id.value;
         if (ASTtree.ast.start.e != null){
-			var insertVar = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCyles);
+			var insertVar = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCycles);
         	insertVar.array = [];
         	insertVar.arrayCycle = [];
         	symbolTable.insert(insertVar);
@@ -788,11 +799,11 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
         		}
         		arbol = arbolM;
         	}
-        	//var symbols = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCyles);
+        	//var symbols = new Symbol(map(arrayName),"",map(arrayType),ASTtree,computedCycles);
         	//symbols.array = arbol;
-        	//symbols.arrayCycle = [...Array(arbol.length)].map(x => computedCyles);
+        	//symbols.arrayCycle = [...Array(arbol.length)].map(x => computedCycles);
         	//symbolTable.insert(symbols);
-        	symbolTable.modify(map(arrayName),"",map(arrayType),arbol,ASTtree,computedCyles);
+        	symbolTable.modify(map(arrayName),"",map(arrayType),arbol,ASTtree,computedCycles);
         }
         else{
         	arbol = [];
@@ -808,5 +819,5 @@ export function getEvaluation(ASTtree : any, symbolTable : HashTable,computeCycl
     	}
     }
     symbolTable = symbol; 
-    return [arbol,symbol,computedCyles];
+    return [arbol,symbol,computedCycles];
 }

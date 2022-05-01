@@ -53,8 +53,8 @@ export class VM {
 	}
 	catch(error){
   		if (error instanceof RangeError){
-			console.log("ERROR: Stack Overflow"); //En caso de que existan menciones circulares a la misma variable se muestra este error 
-			errores = "ERROR: Stack Overflow";
+			console.log("ERROR: Existe una referencia circular en alguna de las variables."); //En caso de que existan menciones circulares a la misma variable se muestra este error 
+			errores = "ERROR: Existe una referencia circular en alguna de las variables";
   		}
   		else{
 			if (error.ast == null){
