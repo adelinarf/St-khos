@@ -38,6 +38,7 @@ Pero no pueden utilizarse variables que ocurren luego de la actual, por ejemplo:
     [num] A := [2, A[2]+3, 2];
     
 La variable A[1] solo puede utilizar variables anteriormente definidas, como A[0], pero al momento de evaluar A[2] en A[1] no se conoce el valor de la primera.
+#### NOTA: La única manera de utilizar una posición del arreglo posterior a la actual, es asignando la posición con el valor deseado y usar la función tick() de Stókhos para aumentar el ciclo de cómputo y evaluar de nuevo dicha posición del arreglo, de esta manera se actualiza el valor en el arreglo que deseamos generar.
 
 ## Operadores
 Los operadores que se utilizan en Stókhos son:
