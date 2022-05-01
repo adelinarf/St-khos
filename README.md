@@ -28,6 +28,17 @@ Ejemplos:
     [num] b:=[1,2,3];
     [bool] x:=[false,true];
 
+Pueden utilizarse variables anteriores del arreglo dentro del mismo arreglo, por ejemplo:
+
+    [num] A := [41, 'A[0]', 5, 6];
+    [num] B := [10, A[0]+12, 9];
+    
+Pero no pueden utilizarse variables que ocurren luego de la actual, por ejemplo:
+
+    [num] A := [2, A[2]+3, 2];
+    
+La variable A[1] solo puede utilizar variables anteriormente definidas, como A[0], pero al momento de evaluar A[2] en A[1] no se conoce el valor de la primera.
+
 ## Operadores
 Los operadores que se utilizan en Stókhos son:
 
